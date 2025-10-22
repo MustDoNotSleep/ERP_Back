@@ -22,7 +22,7 @@ export const loginHandler = async (event) => {
     // 3. 🚀 [수정] teamName을 포함하도록 SQL 쿼리 변경
     const [rows] = await pool.query(
       `SELECT 
-        e.employeeId, e.name, e.email, e.password, 
+        e.employeeId, e.name, e.email, e.password, e.employmentType,
         p.positionLevel, d.teamName 
        FROM Employees e 
        LEFT JOIN Positions p ON e.positionId = p.positionId
@@ -48,11 +48,16 @@ export const loginHandler = async (event) => {
       email: user.email,
       name: user.name,
       positionLevel: user.positionLevel,
+      employmentType: user.employmentType,
       teamName: user.teamName // 권한 검증을 위한 teamName 추가
     };
 
     // 7. 토큰 서명 (유효기간: 3시간)
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '3h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: '3h', 
+      issuer: 'YourCompanyAuth', // <--- 발급자 (Issuer)를 명시
+      audience: 'YourApiGateway' // <--- 대상 (Audience)를 명시});
+    });
 
     // 8. 성공 응답
     return buildResponse(200, {
