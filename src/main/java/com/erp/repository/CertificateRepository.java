@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface CertificateRepository extends JpaRepository<Certificate, String> {
+public interface CertificateRepository extends JpaRepository<Certificate, Long> {
     List<Certificate> findByEmployee(Employee employee);
-    List<Certificate> findByEmployeeAndExpiryDateAfter(Employee employee, LocalDate date);
-    List<Certificate> findByExpiryDateBetween(LocalDate startDate, LocalDate endDate);
+    List<Certificate> findByEmployeeAndExpirationDateAfter(Employee employee, LocalDate date);
+    List<Certificate> findByExpirationDateBetween(LocalDate startDate, LocalDate endDate);
 }

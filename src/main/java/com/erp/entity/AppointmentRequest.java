@@ -1,6 +1,7 @@
 package com.erp.entity;
 
-import com.erp.entity.enums.Appointment;
+import com.erp.entity.enums.AppointmentType;
+import com.erp.entity.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

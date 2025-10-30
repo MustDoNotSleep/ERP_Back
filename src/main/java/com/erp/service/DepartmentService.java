@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,29 +20,23 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     
     @Transactional
-    public String createDepartment(DepartmentDto.Request request) {
-        validateUniqueName(request.getName());
-        
-        Department parentDepartment = null;
-        if (request.getParentDepartmentId() != null) {
-            parentDepartment = findDepartment(request.getParentDepartmentId());
-        }
+    public Long createDepartment(DepartmentDto.Request request) {
+        validateUniqueName(request.getDepartmentName());
         
         Department department = Department.builder()
-            .id(UUID.randomUUID().toString())
-            .name(request.getName())
-            .description(request.getDescription())
-            .parentDepartment(parentDepartment)
+            .departmentName(request.getDepartmentName())
+            .teamName(request.getTeamName())
+            .isManagement(request.isManagement())
             .build();
         
         departmentRepository.save(department);
         return department.getId();
     }
     
-    public DepartmentDto.Response getDepartment(String id) {
+    public DepartmentDto.Response getDepartment(Long id) {
         return departmentRepository.findById(id)
             .map(DepartmentDto.Response::from)
-            .orElseThrow(() -> new EntityNotFoundException("Department", id));
+            .orElseThrow(() -> new EntityNotFoundException("Department", id.toString()));
     }
     
     public List<DepartmentDto.Response> getAllDepartments() {
@@ -52,39 +45,26 @@ public class DepartmentService {
             .collect(Collectors.toList());
     }
     
-    public List<DepartmentDto.Response> getRootDepartments() {
-        return departmentRepository.findByParentDepartmentIsNull().stream()
-            .map(DepartmentDto.Response::from)
-            .collect(Collectors.toList());
-    }
-    
-    public List<DepartmentDto.Response> getChildDepartments(String parentId) {
-        Department parent = findDepartment(parentId);
-        return departmentRepository.findByParentDepartment(parent).stream()
-            .map(DepartmentDto.Response::from)
-            .collect(Collectors.toList());
-    }
-    
     @Transactional
-    public void updateDepartment(String id, DepartmentDto.UpdateRequest request) {
+    public void updateDepartment(Long id, DepartmentDto.UpdateRequest request) {
         Department department = findDepartment(id);
         
-        if (!department.getName().equals(request.getName())) {
-            validateUniqueName(request.getName());
+        if (!department.getDepartmentName().equals(request.getDepartmentName())) {
+            validateUniqueName(request.getDepartmentName());
         }
         
         Department updatedDepartment = Department.builder()
             .id(department.getId())
-            .name(request.getName())
-            .description(request.getDescription())
-            .parentDepartment(department.getParentDepartment())
+            .departmentName(request.getDepartmentName())
+            .teamName(request.getTeamName())
+            .isManagement(request.isManagement())
             .build();
         
         departmentRepository.save(updatedDepartment);
     }
     
     @Transactional
-    public void deleteDepartment(String id) {
+    public void deleteDepartment(Long id) {
         Department department = findDepartment(id);
         
         if (!department.getEmployees().isEmpty()) {
@@ -94,23 +74,16 @@ public class DepartmentService {
             );
         }
         
-        if (!department.getChildDepartments().isEmpty()) {
-            throw new BusinessException(
-                "Cannot delete department with child departments",
-                "DEPARTMENT_HAS_CHILDREN"
-            );
-        }
-        
         departmentRepository.delete(department);
     }
     
-    private Department findDepartment(String id) {
+    private Department findDepartment(Long id) {
         return departmentRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Department", id));
+            .orElseThrow(() -> new EntityNotFoundException("Department", id.toString()));
     }
     
     private void validateUniqueName(String name) {
-        if (departmentRepository.findByName(name).isPresent()) {
+        if (departmentRepository.findByDepartmentName(name).isPresent()) {
             throw new BusinessException(
                 String.format("Department name already exists: %s", name),
                 "DUPLICATE_DEPARTMENT_NAME"

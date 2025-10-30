@@ -1,6 +1,10 @@
 package com.erp.entity;
 
-import com.erp.entity.enums.*;
+import com.erp.entity.enums.MilitaryStatus;
+import com.erp.entity.enums.MilitaryBranch;
+import com.erp.entity.enums.MilitaryRank;
+import com.erp.entity.enums.MilitarySpecialty;
+import com.erp.entity.enums.ExemptionReason;
 import jakarta.persistence.*;
 import lombok.*;
 

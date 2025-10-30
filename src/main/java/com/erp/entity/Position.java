@@ -26,5 +26,6 @@ public class Position extends BaseEntity {
     private Integer positionLevel;
     
     @OneToMany(mappedBy = "position")
+    @Builder.Default
     private List<Employee> employees = new ArrayList<>();
 }

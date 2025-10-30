@@ -4,9 +4,6 @@ import com.erp.entity.Department;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class DepartmentDto {
     
     @Getter
@@ -20,21 +17,18 @@ public class DepartmentDto {
     @Getter
     @Builder
     public static class Response {
-        private String id;
+        private Long id;
         private String departmentName;
         private String teamName;
         private boolean isManagement;
+        private int employeeCount;
         
         public static Response from(Department department) {
             return Response.builder()
                 .id(department.getId())
-                .name(department.getName())
-                .description(department.getDescription())
-                .parentDepartmentName(department.getParentDepartment() != null ? 
-                    department.getParentDepartment().getName() : null)
-                .childDepartments(department.getChildDepartments().stream()
-                    .map(ChildDepartment::from)
-                    .collect(Collectors.toList()))
+                .departmentName(department.getDepartmentName())
+                .teamName(department.getTeamName())
+                .isManagement(department.isManagement())
                 .employeeCount(department.getEmployees().size())
                 .build();
         }
@@ -45,5 +39,6 @@ public class DepartmentDto {
     public static class UpdateRequest {
         private String departmentName;
         private String teamName;
+        private boolean isManagement;
     }
 }

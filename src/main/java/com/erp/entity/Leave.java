@@ -14,7 +14,7 @@
 // public class Leave extends BaseEntity {
     
 //     @Id
-//     @GeneratedValue(strategy = GenerationType.UUID)
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //     @Column(name = "leaveId")
 //     private String id;
     

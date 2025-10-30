@@ -15,14 +15,60 @@
   - 커넥션 풀 구성
 
 ### Day 2 (Phase 4-5): 엔티티 및 스키마 설계
-- [ ] Phase 4: JPA 엔티티 설계
-  - Employee, Department, Position 등 12개 엔티티
-  - Entity 관계 설정
-  - DynamoDB → MySQL 테이블 설계
-- [ ] Phase 5: Flyway 마이그레이션 스크립트 작성
-  - 초기 스키마 생성 스크립트
-  - 데이터 마이그레이션 스크립트
-  - 비밀번호 암호화 스크립트
+- [x] Phase 4: JPA 엔티티 설계
+  - Employee, Department, Position 등 12개 엔티티 완료
+  - Entity 관계 설정 완료
+  - Enum 분리 (14개 독립 파일)
+- [x] Phase 5: Flyway 마이그레이션 스크립트 작성
+  - 초기 스키마 생성 스크립트 (V1__init.sql 등)
+  - MySQL 테이블 구조 완성
+
+### Day 3 (Phase 6): 보안 및 인증 구현
+- [x] Phase 6: Spring Security + JWT 구현
+  - SecurityConfig.java 완성 (CORS, 권한별 엔드포인트 설정)
+  - JwtService.java 완성 (토큰 생성/검증)
+  - JwtAuthenticationFilter.java 완성
+  - AuthenticationController.java 완성 (로그인 API)
+  - AuthenticationService.java 완성
+  - AuthenticationRequest/Response DTO 완성
+  - Employee 엔티티 UserDetails 구현 (Position 기반 Role 시스템)
+
+### Day 4-5 (Phase 7): Repository 및 기본 CRUD
+- [x] Phase 7: Repository 및 Service 레이어
+  - 12개 Repository 완성 (Long ID로 통일)
+  - EmployeeService, DepartmentService 완성
+  - EmployeeController, DepartmentController 완성
+  - DTO 12개 생성/수정 완료
+
+### 다음 단계: Day 6-10 (Phase 8-12)
+- [ ] Phase 8: Education 모듈 완성
+  - EducationService, EducationController 보완
+  - WorkExperienceService, WorkExperienceController 보완
+  - CertificateService, CertificateController 보완
+  
+- [ ] Phase 9: Attendance 모듈 (주석 해제 및 구현)
+  - Attendance 엔티티 활성화
+  - AttendanceService 구현
+  - AttendanceController 구현
+  - 출퇴근 기록 API
+
+- [ ] Phase 10: Leave 모듈 (주석 해제 및 구현)
+  - Leave 엔티티 활성화
+  - LeaveService 구현
+  - LeaveController 구현
+  - 휴가 신청/승인 워크플로우
+
+- [ ] Phase 11: Post 모듈 (주석 해제 및 구현)
+  - Post 엔티티 활성화
+  - PostService 구현
+  - PostController 구현
+  - 공지사항 CRUD
+
+- [ ] Phase 12: Salary 모듈 (주석 해제 및 구현)
+  - Salary 엔티티 활성화
+  - SalaryService 구현
+  - SalaryController 구현
+  - 급여 정보 관리
 
 [이하 각 Day별 상세 계획]
 

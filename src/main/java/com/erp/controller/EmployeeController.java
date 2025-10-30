@@ -18,9 +18,9 @@ public class EmployeeController {
     
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> registerEmployee(
+    public ResponseEntity<ApiResponse<Long>> registerEmployee(
         @RequestBody EmployeeDto.Request request) {
-        String employeeId = employeeService.registerEmployee(request);
+        Long employeeId = employeeService.registerEmployee(request);
         return ResponseEntity.ok(ApiResponse.success(
             "Employee registered successfully", employeeId));
     }
@@ -28,7 +28,7 @@ public class EmployeeController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR') or #id == authentication.principal.id")
     public ResponseEntity<ApiResponse<EmployeeDto.Response>> getEmployee(
-        @PathVariable String id) {
+        @PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(
             employeeService.getEmployee(id)));
     }
@@ -44,7 +44,7 @@ public class EmployeeController {
     @GetMapping("/department/{departmentId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
     public ResponseEntity<ApiResponse<Object>> getEmployeesByDepartment(
-        @PathVariable String departmentId) {
+        @PathVariable Long departmentId) {
         return ResponseEntity.ok(ApiResponse.success(
             employeeService.getEmployeesByDepartment(departmentId)));
     }
@@ -52,7 +52,7 @@ public class EmployeeController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<ApiResponse<Void>> updateEmployee(
-        @PathVariable String id,
+        @PathVariable Long id,
         @RequestBody EmployeeDto.UpdateRequest request) {
         employeeService.updateEmployee(id, request);
         return ResponseEntity.ok(ApiResponse.success("Employee updated successfully"));
@@ -61,7 +61,7 @@ public class EmployeeController {
     @PutMapping("/{id}/password")
     @PreAuthorize("#id == authentication.principal.id")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
-        @PathVariable String id,
+        @PathVariable Long id,
         @RequestParam String newPassword) {
         employeeService.updatePassword(id, newPassword);
         return ResponseEntity.ok(ApiResponse.success("Password updated successfully"));
@@ -70,7 +70,7 @@ public class EmployeeController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteEmployee(
-        @PathVariable String id) {
+        @PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.ok(ApiResponse.success("Employee deleted successfully"));
     }

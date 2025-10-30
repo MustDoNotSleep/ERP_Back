@@ -6,53 +6,52 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class CourseDto {
     
     @Getter
     @Builder
     public static class Request {
-        private String title;
-        private String description;
-        private CourseType type;
+        private String courseName;
+        private String completionCriteria;
+        private Integer capacity;
+        private CourseType courseType;
         private LocalDate startDate;
         private LocalDate endDate;
-        private String instructor;
-        private String location;
-        private Integer capacity;
-        private String requirements;
+        private String objective;
+        private Long creatorId;
     }
     
     @Getter
     @Builder
     public static class Response {
-        private String id;
-        private String title;
-        private String description;
-        private CourseType type;
+        private Long id;
+        private String courseName;
+        private String completionCriteria;
+        private Integer capacity;
+        private CourseType courseType;
         private LocalDate startDate;
         private LocalDate endDate;
-        private String instructor;
-        private String location;
-        private Integer capacity;
-        private Integer currentParticipants;
-        private String requirements;
+        private String objective;
+        private String creatorName;
         private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
         
         public static Response from(Course course) {
             return Response.builder()
                 .id(course.getId())
-                .title(course.getTitle())
-                .description(course.getDescription())
-                .type(course.getType())
+                .courseName(course.getCourseName())
+                .completionCriteria(course.getCompletionCriteria())
+                .capacity(course.getCapacity())
+                .courseType(course.getCourseType())
                 .startDate(course.getStartDate())
                 .endDate(course.getEndDate())
-                .instructor(course.getInstructor())
-                .location(course.getLocation())
-                .capacity(course.getCapacity())
-                .currentParticipants(course.getApplications().size())
-                .requirements(course.getRequirements())
+                .objective(course.getObjective())
+                .creatorName(course.getCreator() != null ? 
+                    course.getCreator().getName() : null)
                 .createdAt(course.getCreatedAt())
+                .updatedAt(course.getUpdatedAt())
                 .build();
         }
     }
@@ -60,11 +59,11 @@ public class CourseDto {
     @Getter
     @Builder
     public static class UpdateRequest {
-        private String title;
-        private String description;
-        private String instructor;
-        private String location;
+        private String courseName;
+        private String completionCriteria;
         private Integer capacity;
-        private String requirements;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String objective;
     }
 }

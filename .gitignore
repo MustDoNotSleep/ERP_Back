@@ -6,6 +6,9 @@ npm-debug.log*
 .env
 .env.local
 
+# 시크릿 키
+SecretKey.pem
+
 # 빌드 결과물
 dist/
 build/

@@ -35,7 +35,7 @@ public class SecurityMigrationUtil {
         for (Employee employee : employees) {
             String plainPassword = employee.getPassword().substring("NEEDS_HASH:".length());
             String hashedPassword = passwordEncoder.encode(plainPassword);
-            employee.setPassword(hashedPassword);
+            employee.updatePassword(hashedPassword);
             employeeRepository.save(employee);
         }
     }
@@ -52,7 +52,7 @@ public class SecurityMigrationUtil {
             byte[] encryptedRRN = cipher.doFinal(plainRRN.getBytes());
             String encodedRRN = "ENC:" + Base64.getEncoder().encodeToString(encryptedRRN);
             
-            employee.setRrn(encodedRRN);
+            employee.updateRrn(encodedRRN);
             employeeRepository.save(employee);
         }
         

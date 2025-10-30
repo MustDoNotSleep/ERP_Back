@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,35 +31,40 @@ public class EmployeeService {
     private final PasswordEncoder passwordEncoder;
     
     @Transactional
-    public String registerEmployee(EmployeeDto.Request request) {
+    public Long registerEmployee(EmployeeDto.Request request) {
         validateUniqueEmail(request.getEmail());
         
         Department department = findDepartment(request.getDepartmentId());
         Position position = findPosition(request.getPositionId());
         
         Employee employee = Employee.builder()
-            .id(UUID.randomUUID().toString())
             .name(request.getName())
+            .nameEng(request.getNameEng())
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .rrn(request.getRrn())
             .phone(request.getPhone())
             .address(request.getAddress())
+            .addressDetails(request.getAddressDetails())
             .birthDate(request.getBirthDate())
             .hireDate(request.getHireDate())
+            .quitDate(request.getQuitDate())
+            .internalNumber(request.getInternalNumber())
+            .familyCertificate(request.getFamilyCertificate())
             .department(department)
             .position(position)
-            .roles(request.getRoles())
+            .employmentType(request.getEmploymentType())
+            .nationality(request.getNationality())
             .build();
         
         employeeRepository.save(employee);
         return employee.getId();
     }
     
-    public EmployeeDto.Response getEmployee(String id) {
+    public EmployeeDto.Response getEmployee(Long id) {
         return employeeRepository.findById(id)
             .map(EmployeeDto.Response::from)
-            .orElseThrow(() -> new EntityNotFoundException("Employee", id));
+            .orElseThrow(() -> new EntityNotFoundException("Employee", id.toString()));
     }
     
     public PageResponse<EmployeeDto.Response> getAllEmployees(Pageable pageable) {
@@ -68,7 +72,7 @@ public class EmployeeService {
         return PageResponse.of(employees.map(EmployeeDto.Response::from));
     }
     
-    public List<EmployeeDto.Response> getEmployeesByDepartment(String departmentId) {
+    public List<EmployeeDto.Response> getEmployeesByDepartment(Long departmentId) {
         Department department = findDepartment(departmentId);
         return employeeRepository.findByDepartment(department).stream()
             .map(EmployeeDto.Response::from)
@@ -76,9 +80,9 @@ public class EmployeeService {
     }
     
     @Transactional
-    public void updateEmployee(String id, EmployeeDto.UpdateRequest request) {
+    public void updateEmployee(Long id, EmployeeDto.UpdateRequest request) {
         Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Employee", id));
+            .orElseThrow(() -> new EntityNotFoundException("Employee", id.toString()));
         
         if (request.getDepartmentId() != null) {
             Department department = findDepartment(request.getDepartmentId());
@@ -94,29 +98,29 @@ public class EmployeeService {
     }
     
     @Transactional
-    public void updatePassword(String id, String newPassword) {
+    public void updatePassword(Long id, String newPassword) {
         Employee employee = employeeRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Employee", id));
+            .orElseThrow(() -> new EntityNotFoundException("Employee", id.toString()));
         
         employee.updatePassword(passwordEncoder.encode(newPassword));
     }
     
     @Transactional
-    public void deleteEmployee(String id) {
+    public void deleteEmployee(Long id) {
         if (!employeeRepository.existsById(id)) {
-            throw new EntityNotFoundException("Employee", id);
+            throw new EntityNotFoundException("Employee", id.toString());
         }
         employeeRepository.deleteById(id);
     }
     
-    private Department findDepartment(String departmentId) {
+    private Department findDepartment(Long departmentId) {
         return departmentRepository.findById(departmentId)
-            .orElseThrow(() -> new EntityNotFoundException("Department", departmentId));
+            .orElseThrow(() -> new EntityNotFoundException("Department", departmentId.toString()));
     }
     
-    private Position findPosition(String positionId) {
+    private Position findPosition(Long positionId) {
         return positionRepository.findById(positionId)
-            .orElseThrow(() -> new EntityNotFoundException("Position", positionId));
+            .orElseThrow(() -> new EntityNotFoundException("Position", positionId.toString()));
     }
     
     private void validateUniqueEmail(String email) {

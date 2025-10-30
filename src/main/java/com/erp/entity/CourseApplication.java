@@ -1,6 +1,6 @@
 package com.erp.entity;
 
-import com.erp.entity.enums.Application;
+import com.erp.entity.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 

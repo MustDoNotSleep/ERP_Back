@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class WorkExperience extends BaseEntity {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "experienceId")
     private Long id;
     

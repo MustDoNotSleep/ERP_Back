@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, String> {
-    List<Course> findByType(CourseType type);
+public interface CourseRepository extends JpaRepository<Course, Long> {
+    List<Course> findByCourseType(CourseType type);
     List<Course> findByStartDateGreaterThanEqual(LocalDate date);
-    List<Course> findByCapacityGreaterThan(int capacity);
+    List<Course> findByCapacityGreaterThan(Integer capacity);
 }

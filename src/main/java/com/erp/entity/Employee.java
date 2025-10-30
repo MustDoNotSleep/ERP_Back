@@ -1,6 +1,10 @@
 package com.erp.entity;
 
-import com.erp.entity.enums.Employment;
+import com.erp.entity.converter.EmploymentTypeConverter;
+import com.erp.entity.converter.NationalityConverter;
+import com.erp.entity.enums.EmploymentType;
+import com.erp.entity.enums.Nationality;
+import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -11,7 +15,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "employees")
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class Employee extends BaseEntity implements UserDetails {
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "employeeId")
     private Long id;
     
@@ -57,26 +61,53 @@ public class Employee extends BaseEntity implements UserDetails {
     @JoinColumn(name = "positionId")
     private Position position;
     
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = EmploymentTypeConverter.class)
     @Column(name = "employmentType", nullable = false)
     private EmploymentType employmentType;
     
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = NationalityConverter.class)
     @Column(name = "nationality", nullable = false)
     private Nationality nationality;
 
-    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL) // 직원을 저장/ 삭제할 때 관련 학력/ 경력 정보도 삭제됨.
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<Education> educations = new ArrayList<>();
     
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    @Builder.Default
     private List<WorkExperience> workExperiences = new ArrayList<>();
     
     // Security related methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+        // Position level 기반으로 권한 부여
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        
+        if (position != null && position.getPositionLevel() != null) {
+            int level = position.getPositionLevel();
+            
+            // Level에 따른 권한 부여
+            if (level >= 5) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_HR"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+            } else if (level >= 3) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
+            }
+            
+            // 모든 직원은 기본 USER 권한
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        } else {
+            // Position이 없는 경우 기본 USER 권한만
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        
+        return authorities;
+    }
+    
+    @Override
+    public String getUsername() {
+        return this.email;
     }
     
     @Override
@@ -102,6 +133,10 @@ public class Employee extends BaseEntity implements UserDetails {
     // Business methods
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+    
+    public void updateRrn(String newRrn) {
+        this.rrn = newRrn;
     }
     
     public void updatePersonalInfo(String phone, String address) {

@@ -15,7 +15,7 @@
 // public class Post extends BaseEntity {
     
 //     @Id
-//     @GeneratedValue(strategy = GenerationType.UUID)
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //     @Column(name = "postId")
 //     private String id;
     
@@ -74,7 +74,7 @@
 // class Comment extends BaseEntity {
     
 //     @Id
-//     @GeneratedValue(strategy = GenerationType.UUID)
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //     @Column(name = "commentId")
 //     private String id;
     

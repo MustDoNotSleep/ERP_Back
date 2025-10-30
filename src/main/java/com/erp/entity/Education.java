@@ -1,5 +1,8 @@
 package com.erp.entity;
 
+import com.erp.entity.enums.Degree;
+import com.erp.entity.enums.GraduationStatus;
+
 import jakarta.persistence.*;
 import lombok.*;
 

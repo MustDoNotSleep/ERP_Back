@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SalaryInfoRepository extends JpaRepository<SalaryInfo, String> {
+public interface SalaryInfoRepository extends JpaRepository<SalaryInfo, Long> {
     Optional<SalaryInfo> findByEmployee(Employee employee);
     void deleteByEmployee(Employee employee);
 }

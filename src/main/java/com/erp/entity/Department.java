@@ -26,7 +26,7 @@ public class Department extends BaseEntity {
     @Column(name = "manage")
     private boolean isManagement;
     
-    @Builder.Default
     @OneToMany(mappedBy = "department")
+    @Builder.Default
     private List<Employee> employees = new ArrayList<>();
 }

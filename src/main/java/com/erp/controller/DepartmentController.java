@@ -18,9 +18,9 @@ public class DepartmentController {
     
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> createDepartment(
+    public ResponseEntity<ApiResponse<Long>> createDepartment(
         @RequestBody DepartmentDto.Request request) {
-        String departmentId = departmentService.createDepartment(request);
+        Long departmentId = departmentService.createDepartment(request);
         return ResponseEntity.ok(ApiResponse.success(
             "Department created successfully", departmentId));
     }
@@ -28,7 +28,7 @@ public class DepartmentController {
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<DepartmentDto.Response>> getDepartment(
-        @PathVariable String id) {
+        @PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(
             departmentService.getDepartment(id)));
     }
@@ -40,25 +40,10 @@ public class DepartmentController {
             departmentService.getAllDepartments()));
     }
     
-    @GetMapping("/root")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<DepartmentDto.Response>>> getRootDepartments() {
-        return ResponseEntity.ok(ApiResponse.success(
-            departmentService.getRootDepartments()));
-    }
-    
-    @GetMapping("/{id}/children")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<DepartmentDto.Response>>> getChildDepartments(
-        @PathVariable String id) {
-        return ResponseEntity.ok(ApiResponse.success(
-            departmentService.getChildDepartments(id)));
-    }
-    
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updateDepartment(
-        @PathVariable String id,
+        @PathVariable Long id,
         @RequestBody DepartmentDto.UpdateRequest request) {
         departmentService.updateDepartment(id, request);
         return ResponseEntity.ok(ApiResponse.success("Department updated successfully"));
@@ -67,7 +52,7 @@ public class DepartmentController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> deleteDepartment(
-        @PathVariable String id) {
+        @PathVariable Long id) {
         departmentService.deleteDepartment(id);
         return ResponseEntity.ok(ApiResponse.success("Department deleted successfully"));
     }

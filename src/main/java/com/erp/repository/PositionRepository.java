@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PositionRepository extends JpaRepository<Position, String> {
-    Optional<Position> findByName(String name);
-    List<Position> findByRankLevelGreaterThanEqual(Integer rankLevel);
-    List<Position> findAllByOrderByRankLevelDesc();
+public interface PositionRepository extends JpaRepository<Position, Long> {
+    Optional<Position> findByPositionName(String positionName);
+    List<Position> findByPositionLevelGreaterThanEqual(Integer positionLevel);
+    List<Position> findAllByOrderByPositionLevelDesc();
 }

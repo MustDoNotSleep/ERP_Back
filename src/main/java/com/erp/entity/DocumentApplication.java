@@ -1,10 +1,10 @@
 package com.erp.entity;
 
-import com.erp.entity.enums.Document;
+import com.erp.entity.enums.DocumentType;
+import com.erp.entity.enums.DocumentLanguage;
+import com.erp.entity.enums.DocumentStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import main.java.com.erp.entity.enums.DocumentLanguage;
-import main.java.com.erp.entity.enums.DocumentStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
