@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: erp-system
+  
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:erp_db}?useSSL=true&serverTimezone=Asia/Seoul&rewriteBatchedStatements=true&characterEncoding=UTF-8
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: HikariPool-ERP
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
+      auto-commit: true
+      connection-test-query: SELECT 1
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 50
+          batch_versioned_data: true
+          order_inserts: true
+          order_updates: true
+        generate_statistics: true
+  
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+    
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret}
+  expiration: ${JWT_EXPIRATION:10800} # 3 hours in seconds
