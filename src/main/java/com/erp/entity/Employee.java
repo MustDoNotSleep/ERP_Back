@@ -5,7 +5,6 @@ import com.erp.entity.converter.NationalityConverter;
 import com.erp.entity.enums.EmploymentType;
 import com.erp.entity.enums.Nationality;
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -53,11 +52,11 @@ public class Employee extends BaseEntity implements UserDetails {
     private String internalNumber; 
     private String familyCertificate;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "departmentId")
     private Department department;
     
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "positionId")
     private Position position;
     

@@ -72,6 +72,31 @@ public class EmployeeService {
         return PageResponse.of(employees.map(EmployeeDto.Response::from));
     }
     
+    public PageResponse<EmployeeDto.Response> searchEmployees(String name, String email, 
+                                                              Long departmentId, Long positionId, 
+                                                              Pageable pageable) {
+        Page<Employee> employees = employeeRepository.findAll((root, query, criteriaBuilder) -> {
+            var predicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
+            
+            if (name != null && !name.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("name"), "%" + name + "%"));
+            }
+            if (email != null && !email.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("email"), "%" + email + "%"));
+            }
+            if (departmentId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("department").get("id"), departmentId));
+            }
+            if (positionId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("position").get("id"), positionId));
+            }
+            
+            return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));
+        }, pageable);
+        
+        return PageResponse.of(employees.map(EmployeeDto.Response::from));
+    }
+    
     public List<EmployeeDto.Response> getEmployeesByDepartment(Long departmentId) {
         Department department = findDepartment(departmentId);
         return employeeRepository.findByDepartment(department).stream()

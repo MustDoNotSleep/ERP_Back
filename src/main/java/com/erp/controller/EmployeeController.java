@@ -10,7 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/employees")
+@RequestMapping("/employees")
 @RequiredArgsConstructor
 public class EmployeeController {
     
@@ -39,6 +39,18 @@ public class EmployeeController {
         Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
             employeeService.getAllEmployees(pageable)));
+    }
+    
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<PageResponse<EmployeeDto.Response>>> searchEmployees(
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) Long departmentId,
+        @RequestParam(required = false) Long positionId,
+        Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.success(
+            employeeService.searchEmployees(name, email, departmentId, positionId, pageable)));
     }
     
     @GetMapping("/department/{departmentId}")

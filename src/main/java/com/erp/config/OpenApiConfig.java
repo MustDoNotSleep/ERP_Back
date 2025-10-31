@@ -27,10 +27,10 @@ public class OpenApiConfig {
                                 .email("erp@example.com")))
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:8080/api/v1")
+                                .url("http://localhost:8080/api")
                                 .description("Local Development Server"),
                         new Server()
-                                .url("http://13.124.242.117:8080/api/v1")
+                                .url("http://13.124.242.117:8080/api")
                                 .description("Production Server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))

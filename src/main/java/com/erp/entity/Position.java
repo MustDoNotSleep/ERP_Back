@@ -1,5 +1,6 @@
 package com.erp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,5 +28,6 @@ public class Position extends BaseEntity {
     
     @OneToMany(mappedBy = "position")
     @Builder.Default
+    @JsonIgnore
     private List<Employee> employees = new ArrayList<>();
 }

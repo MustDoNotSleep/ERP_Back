@@ -102,7 +102,7 @@ BE/
 - [ ] 1.2 requirements.txt 업데이트 및 패키지 설치
   - bcrypt, python-multipart 추가
 - [ ] 1.3 프로젝트 폴더 구조 생성
-  - app/, app/models/mysql/, app/models/dynamodb/, app/schemas/, app/api/v1/, app/crud/, app/core/, app/utils/, tests/
+  - app/, app/models/mysql/, app/models/dynamodb/, app/schemas/, app/, app/crud/, app/core/, app/utils/, tests/
 - [ ] 1.4 .env.example 및 .env 파일 설정
   - MySQL 연결 정보 (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT)
   - DynamoDB 설정 (AWS_REGION, DYNAMO_TABLE, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
@@ -121,7 +121,7 @@ BE/
   - CORS 설정
   - Middleware 설정
   - 라우터 등록
-- [ ] 1.10 Health check 엔드포인트 구현 (/health, /api/v1/health)
+- [ ] 1.10 Health check 엔드포인트 구현 (/health, /health)
   - MySQL 연결 체크
   - DynamoDB 연결 체크
 
@@ -226,103 +226,103 @@ BE/
   - 급여 계산 로직 (totalPay, totalDeductions, netPay)
 
 ### Phase 8: API 엔드포인트 구현 - 인증
-- [ ] 8.1 Auth API 구현 (app/api/v1/auth.py)
-  - [ ] 8.1.1 POST /api/v1/auth/login (로그인)
+- [ ] 8.1 Auth API 구현 (app/auth.py)
+  - [ ] 8.1.1 POST /auth/login (로그인)
     - Request: { email, password }
     - Response: { token, user: { employeeId, name, email, teamName, employmentType } }
-  - [ ] 8.1.2 POST /api/v1/auth/change-password (비밀번호 변경, JWT 필요)
+  - [ ] 8.1.2 POST /auth/change-password (비밀번호 변경, JWT 필요)
     - Request: { currentPassword, newPassword }
     - Response: { message }
 
 ### Phase 9: API 엔드포인트 구현 - 사원 관리
-- [ ] 9.1 Employee API 구현 (app/api/v1/employees.py)
-  - [ ] 9.1.1 POST /api/v1/employees (신규 사원 등록, 인사팀장만)
+- [ ] 9.1 Employee API 구현 (app/employees.py)
+  - [ ] 9.1.1 POST /employees (신규 사원 등록, 인사팀장만)
     - Request: EmployeeCreate (복합 데이터)
     - Response: { message, employeeId }
     - 트랜잭션 처리
-  - [ ] 9.1.2 GET /api/v1/employees (사원 목록 조회, Manager+)
+  - [ ] 9.1.2 GET /employees (사원 목록 조회, Manager+)
     - Query: name, employeeId, positionName, teamName
     - Response: { employees: [ EmployeeRead ] }
     - 권한별 필터링
-  - [ ] 9.1.3 GET /api/v1/employees/{employee_id} (사원 상세 조회)
+  - [ ] 9.1.3 GET /employees/{employee_id} (사원 상세 조회)
     - Response: EmployeeRead (권한에 따라 다른 정보 반환)
-  - [ ] 9.1.4 PUT /api/v1/employees/{employee_id} (사원 정보 수정)
+  - [ ] 9.1.4 PUT /employees/{employee_id} (사원 정보 수정)
     - Request: { phoneNumber, address, internalNumber, bankName, account }
     - Response: { message, updatedFields }
 
 ### Phase 10: API 엔드포인트 구현 - 학력 관리
-- [ ] 10.1 Education API 구현 (app/api/v1/education.py)
-  - [ ] 10.1.1 GET /api/v1/employees/{employee_id}/education (특정 직원 학력 조회, 본인 or 인사팀)
+- [ ] 10.1 Education API 구현 (app/education.py)
+  - [ ] 10.1.1 GET /employees/{employee_id}/education (특정 직원 학력 조회, 본인 or 인사팀)
     - Response: [ EducationRead ]
-  - [ ] 10.1.2 GET /api/v1/education (전체 학력 조회, 인사팀만)
+  - [ ] 10.1.2 GET /education (전체 학력 조회, 인사팀만)
     - Query: name, employeeId, departmentName
     - Response: [ EducationRead ]
-  - [ ] 10.1.3 POST /api/v1/employees/{employee_id}/education (학력 등록, 인사팀만)
+  - [ ] 10.1.3 POST /employees/{employee_id}/education (학력 등록, 인사팀만)
     - Request: EducationCreate
     - Response: { message }
-  - [ ] 10.1.4 PATCH /api/v1/education/{education_id} (학력 수정, 인사팀만)
+  - [ ] 10.1.4 PATCH /education/{education_id} (학력 수정, 인사팀만)
     - Request: EducationUpdate
     - Response: { message }
-  - [ ] 10.1.5 DELETE /api/v1/education/{education_id} (학력 삭제, 인사팀만)
+  - [ ] 10.1.5 DELETE /education/{education_id} (학력 삭제, 인사팀만)
     - Response: { message }
 
 ### Phase 11: API 엔드포인트 구현 - 근태 관리
-- [ ] 11.1 Attendance API 구현 (app/api/v1/attendance.py)
-  - [ ] 11.1.1 POST /api/v1/attendance/clock-in (출근 기록)
+- [ ] 11.1 Attendance API 구현 (app/attendance.py)
+  - [ ] 11.1.1 POST /attendance/clock-in (출근 기록)
     - Request: { employeeId, attendanceType }
     - Response: { message, clockInTime }
-  - [ ] 11.1.2 POST /api/v1/attendance/clock-out (퇴근 기록)
+  - [ ] 11.1.2 POST /attendance/clock-out (퇴근 기록)
     - Request: { employeeId }
     - Response: { message, clockOutTime }
-  - [ ] 11.1.3 GET /api/v1/attendance/records (근태 기록 조회)
+  - [ ] 11.1.3 GET /attendance/records (근태 기록 조회)
     - Query: employeeId, yearMonth (YYYY-MM)
     - Response: [ AttendanceRecordRead ]
-  - [ ] 11.1.4 PUT /api/v1/attendance/records (근태 기록 수정)
+  - [ ] 11.1.4 PUT /attendance/records (근태 기록 수정)
     - Request: { employeeId, date, clockIn, clockOut, attendanceType }
     - Response: { message }
-  - [ ] 11.1.5 DELETE /api/v1/attendance/records (근태 기록 삭제)
+  - [ ] 11.1.5 DELETE /attendance/records (근태 기록 삭제)
     - Request: { employeeId, date, clockInTime }
     - Response: { message }
 
 ### Phase 12: API 엔드포인트 구현 - 휴가 관리
-- [ ] 12.1 Leave API 구현 (app/api/v1/leave.py)
-  - [ ] 12.1.1 POST /api/v1/leave/requests (휴가 신청)
+- [ ] 12.1 Leave API 구현 (app/leave.py)
+  - [ ] 12.1.1 POST /leave/requests (휴가 신청)
     - Request: { employeeId, leaveType, startDate, endDate, reason, requestDays }
     - Response: { message, requestId }
-  - [ ] 12.1.2 GET /api/v1/leave/requests (휴가 신청 목록 조회)
+  - [ ] 12.1.2 GET /leave/requests (휴가 신청 목록 조회)
     - Query: employeeId (optional), status (optional)
     - Response: [ LeaveRequestRead ]
-  - [ ] 12.1.3 GET /api/v1/leave/requests/{request_id} (휴가 신청 상세 조회)
+  - [ ] 12.1.3 GET /leave/requests/{request_id} (휴가 신청 상세 조회)
     - Response: LeaveRequestRead
-  - [ ] 12.1.4 PATCH /api/v1/leave/requests/{request_id}/status (휴가 승인/거절, Manager)
+  - [ ] 12.1.4 PATCH /leave/requests/{request_id}/status (휴가 승인/거절, Manager)
     - Request: { status: "Approved" | "Rejected" }
     - Response: { message }
 
 ### Phase 13: API 엔드포인트 구현 - 공지사항 관리
-- [ ] 13.1 Post API 구현 (app/api/v1/posts.py)
-  - [ ] 13.1.1 POST /api/v1/posts (공지사항 생성, Manager+)
+- [ ] 13.1 Post API 구현 (app/posts.py)
+  - [ ] 13.1.1 POST /posts (공지사항 생성, Manager+)
     - Request: { employeeId, title, content, attachedFile }
     - Response: { message, postId }
-  - [ ] 13.1.2 GET /api/v1/posts (공지사항 목록 조회)
+  - [ ] 13.1.2 GET /posts (공지사항 목록 조회)
     - Query: page, limit
     - Response: { items: [ PostRead ], total, page, limit }
-  - [ ] 13.1.3 GET /api/v1/posts/{post_id} (공지사항 상세 조회)
+  - [ ] 13.1.3 GET /posts/{post_id} (공지사항 상세 조회)
     - Response: PostRead
-  - [ ] 13.1.4 PUT /api/v1/posts/{post_id} (공지사항 수정, Author/HR)
+  - [ ] 13.1.4 PUT /posts/{post_id} (공지사항 수정, Author/HR)
     - Request: { title, content, attachedFile }
     - Response: { message }
-  - [ ] 13.1.5 DELETE /api/v1/posts/{post_id} (공지사항 삭제, Author/HR)
+  - [ ] 13.1.5 DELETE /posts/{post_id} (공지사항 삭제, Author/HR)
     - Response: { message }
 
 ### Phase 14: API 엔드포인트 구현 - 급여 관리
-- [ ] 14.1 Salary API 구현 (app/api/v1/salary.py)
-  - [ ] 14.1.1 POST /api/v1/salary/records (급여 정보 생성, HR Manager)
+- [ ] 14.1 Salary API 구현 (app/salary.py)
+  - [ ] 14.1.1 POST /salary/records (급여 정보 생성, HR Manager)
     - Request: { employeeId, payDate, baseSalary, allowance, bonus, incomeTax, residentTax, socialIns }
     - Response: { message, netPay }
-  - [ ] 14.1.2 GET /api/v1/salary/records (급여 정보 조회, Self/HR)
+  - [ ] 14.1.2 GET /salary/records (급여 정보 조회, Self/HR)
     - Query: employeeId, startDate, endDate
     - Response: [ SalaryRead ]
-  - [ ] 14.1.3 GET /api/v1/salary/records/{record_id} (급여 상세 조회, Self/HR)
+  - [ ] 14.1.3 GET /salary/records/{record_id} (급여 상세 조회, Self/HR)
     - Response: SalaryRead
 
 ### Phase 15: 테스트 구현
@@ -331,19 +331,19 @@ BE/
     - TestClient, 테스트 DB 세션, DynamoDB 로컬 설정, 테스트 사용자
   - [ ] 15.1.2 pytest.ini (pytest 설정)
 - [ ] 15.2 API 엔드포인트 테스트 (pytest)
-  - [ ] 15.2.1 tests/api/v1/test_auth.py (인증 API 테스트)
+  - [ ] 15.2.1 tests/test_auth.py (인증 API 테스트)
     - 로그인, 비밀번호 변경 테스트
-  - [ ] 15.2.2 tests/api/v1/test_employees.py (사원 API 테스트)
+  - [ ] 15.2.2 tests/test_employees.py (사원 API 테스트)
     - 등록, 조회, 수정 테스트, 권한 테스트
-  - [ ] 15.2.3 tests/api/v1/test_education.py (학력 API 테스트)
+  - [ ] 15.2.3 tests/test_education.py (학력 API 테스트)
     - CRUD 테스트, 권한 테스트
-  - [ ] 15.2.4 tests/api/v1/test_attendance.py (근태 API 테스트)
+  - [ ] 15.2.4 tests/test_attendance.py (근태 API 테스트)
     - 출근, 퇴근, 조회, 수정, 삭제 테스트
-  - [ ] 15.2.5 tests/api/v1/test_leave.py (휴가 API 테스트)
+  - [ ] 15.2.5 tests/test_leave.py (휴가 API 테스트)
     - 신청, 조회, 상태 변경 테스트
-  - [ ] 15.2.6 tests/api/v1/test_posts.py (공지사항 API 테스트)
+  - [ ] 15.2.6 tests/test_posts.py (공지사항 API 테스트)
     - 생성, 조회, 수정, 삭제 테스트
-  - [ ] 15.2.7 tests/api/v1/test_salary.py (급여 API 테스트)
+  - [ ] 15.2.7 tests/test_salary.py (급여 API 테스트)
     - 생성, 조회 테스트
 - [ ] 15.3 CRUD 로직 단위 테스트
   - [ ] 15.3.1 tests/crud/test_crud_employee.py

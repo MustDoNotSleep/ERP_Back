@@ -11,7 +11,7 @@
 // import java.util.List;
 
 // @RestController
-// @RequestMapping("/api/leaves")
+// @RequestMapping("/leaves")
 // @RequiredArgsConstructor
 // public class LeaveController {
     

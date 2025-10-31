@@ -190,8 +190,8 @@ public class SecurityConfig {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/employees/**").hasAnyRole("HR_MANAGER", "MANAGER")
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/employees/**").hasAnyRole("HR_MANAGER", "MANAGER")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -219,7 +219,7 @@ public class SecurityConfig {
 ### 4.3 Attendance 모듈 (D+7)
 ```java
 @RestController
-@RequestMapping("/api/v1/attendance")
+@RequestMapping("/attendance")
 public class AttendanceController {
     @PostMapping("/clock-in")
     @PreAuthorize("isAuthenticated()")

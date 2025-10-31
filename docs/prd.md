@@ -293,62 +293,62 @@ BE/
 ## 2. 기능 요구사항
 
 ### 2.1 인증 및 권한 관리 API
-- `POST /api/v1/auth/login`: 로그인
+- `POST /auth/login`: 로그인
   - Request: `{ email, password }`
   - Response: `{ token, user: { employeeId, name, email, teamName, employmentType } }`
-- `POST /api/v1/auth/change-password`: 비밀번호 변경 (JWT 필요)
+- `POST /auth/change-password`: 비밀번호 변경 (JWT 필요)
   - Request: `{ currentPassword, newPassword }`
   - Response: `{ message }`
-- `POST /api/v1/auth/logout`: 로그아웃 (선택사항, 토큰 블랙리스트)
+- `POST /auth/logout`: 로그아웃 (선택사항, 토큰 블랙리스트)
 
 ### 2.2 사원 관리 API
-- `POST /api/v1/employees`: 신규 사원 등록 (인사팀장만)
+- `POST /employees`: 신규 사원 등록 (인사팀장만)
   - 기본정보, 병역정보, 급여정보, 학력, 경력, 자격증 일괄 등록
   - 트랜잭션 처리
-- `GET /api/v1/employees`: 사원 목록 조회
+- `GET /employees`: 사원 목록 조회
   - 권한별 필터링 (인사팀장: 전체, 팀장: 부서 내, 일반: 불가)
   - Query: `name, employeeId, positionName, teamName`
-- `GET /api/v1/employees/{employee_id}`: 사원 상세 조회
+- `GET /employees/{employee_id}`: 사원 상세 조회
   - 본인: 전체 정보
   - 인사팀장: 타인 기본정보
   - 팀장: 같은 부서 전체 정보
-- `PUT /api/v1/employees/{employee_id}`: 사원 정보 수정
+- `PUT /employees/{employee_id}`: 사원 정보 수정
   - 수정 가능 필드: phoneNumber, address, internalNumber, bankName, account
 
 ### 2.3 학력 관리 API
-- `GET /api/v1/employees/{employee_id}/education`: 특정 직원 학력 조회 (본인 or 인사팀)
-- `GET /api/v1/education`: 전체 학력 조회 (인사팀만)
+- `GET /employees/{employee_id}/education`: 특정 직원 학력 조회 (본인 or 인사팀)
+- `GET /education`: 전체 학력 조회 (인사팀만)
   - Query: `name, employeeId, departmentName`
-- `POST /api/v1/employees/{employee_id}/education`: 학력 등록 (인사팀만)
-- `PATCH /api/v1/education/{education_id}`: 학력 수정 (인사팀만)
-- `DELETE /api/v1/education/{education_id}`: 학력 삭제 (인사팀만)
+- `POST /employees/{employee_id}/education`: 학력 등록 (인사팀만)
+- `PATCH /education/{education_id}`: 학력 수정 (인사팀만)
+- `DELETE /education/{education_id}`: 학력 삭제 (인사팀만)
 
 ### 2.4 근태 관리 API
-- `POST /api/v1/attendance/clock-in`: 출근 기록
-- `POST /api/v1/attendance/clock-out`: 퇴근 기록
-- `GET /api/v1/attendance/records`: 근태 기록 조회
+- `POST /attendance/clock-in`: 출근 기록
+- `POST /attendance/clock-out`: 퇴근 기록
+- `GET /attendance/records`: 근태 기록 조회
   - Query: `employeeId, yearMonth (YYYY-MM)`
-- `PUT /api/v1/attendance/records`: 근태 기록 수정
-- `DELETE /api/v1/attendance/records`: 근태 기록 삭제
+- `PUT /attendance/records`: 근태 기록 수정
+- `DELETE /attendance/records`: 근태 기록 삭제
 
 ### 2.5 휴가 관리 API
-- `POST /api/v1/leave/requests`: 휴가 신청
-- `GET /api/v1/leave/requests`: 휴가 신청 목록 조회
-- `GET /api/v1/leave/requests/{request_id}`: 휴가 신청 상세 조회
-- `PATCH /api/v1/leave/requests/{request_id}/status`: 휴가 승인/거절 (관리자)
+- `POST /leave/requests`: 휴가 신청
+- `GET /leave/requests`: 휴가 신청 목록 조회
+- `GET /leave/requests/{request_id}`: 휴가 신청 상세 조회
+- `PATCH /leave/requests/{request_id}/status`: 휴가 승인/거절 (관리자)
 
 ### 2.6 공지사항 관리 API
-- `POST /api/v1/posts`: 공지사항 생성
-- `GET /api/v1/posts`: 공지사항 목록 조회 (페이지네이션)
-- `GET /api/v1/posts/{post_id}`: 공지사항 상세 조회
-- `PUT /api/v1/posts/{post_id}`: 공지사항 수정
-- `DELETE /api/v1/posts/{post_id}`: 공지사항 삭제
+- `POST /posts`: 공지사항 생성
+- `GET /posts`: 공지사항 목록 조회 (페이지네이션)
+- `GET /posts/{post_id}`: 공지사항 상세 조회
+- `PUT /posts/{post_id}`: 공지사항 수정
+- `DELETE /posts/{post_id}`: 공지사항 삭제
 
 ### 2.7 급여 관리 API
-- `POST /api/v1/salary/records`: 급여 정보 생성 (관리자)
-- `GET /api/v1/salary/records`: 급여 정보 조회
+- `POST /salary/records`: 급여 정보 생성 (관리자)
+- `GET /salary/records`: 급여 정보 조회
   - Query: `employeeId, startDate, endDate`
-- `GET /api/v1/salary/records/{record_id}`: 급여 상세 조회
+- `GET /salary/records/{record_id}`: 급여 상세 조회
 
 ## 3. 비기능 요구사항
 
@@ -450,32 +450,32 @@ BE/
 
 | 카테고리 | 메소드 | 경로 | 권한 |
 |---------|--------|------|------|
-| 인증 | POST | /api/v1/auth/login | Public |
-| 인증 | POST | /api/v1/auth/change-password | Authenticated |
-| 사원 | POST | /api/v1/employees | HR Manager |
-| 사원 | GET | /api/v1/employees | Manager+ |
-| 사원 | GET | /api/v1/employees/{id} | Self/Manager/HR |
-| 사원 | PUT | /api/v1/employees/{id} | Self/Manager/HR |
-| 학력 | GET | /api/v1/employees/{id}/education | Self/HR |
-| 학력 | GET | /api/v1/education | HR Manager |
-| 학력 | POST | /api/v1/employees/{id}/education | HR Manager |
-| 학력 | PATCH | /api/v1/education/{id} | HR Manager |
-| 학력 | DELETE | /api/v1/education/{id} | HR Manager |
-| 근태 | POST | /api/v1/attendance/clock-in | Authenticated |
-| 근태 | POST | /api/v1/attendance/clock-out | Authenticated |
-| 근태 | GET | /api/v1/attendance/records | Self/Manager |
-| 근태 | PUT | /api/v1/attendance/records | Manager/HR |
-| 근태 | DELETE | /api/v1/attendance/records | Manager/HR |
-| 휴가 | POST | /api/v1/leave/requests | Authenticated |
-| 휴가 | GET | /api/v1/leave/requests | Self/Manager |
-| 휴가 | PATCH | /api/v1/leave/requests/{id}/status | Manager |
-| 공지 | POST | /api/v1/posts | Manager/HR |
-| 공지 | GET | /api/v1/posts | Authenticated |
-| 공지 | GET | /api/v1/posts/{id} | Authenticated |
-| 공지 | PUT | /api/v1/posts/{id} | Author/HR |
-| 공지 | DELETE | /api/v1/posts/{id} | Author/HR |
-| 급여 | POST | /api/v1/salary/records | HR Manager |
-| 급여 | GET | /api/v1/salary/records | Self/HR |
-| 급여 | GET | /api/v1/salary/records/{id} | Self/HR |
+| 인증 | POST | /auth/login | Public |
+| 인증 | POST | /auth/change-password | Authenticated |
+| 사원 | POST | /employees | HR Manager |
+| 사원 | GET | /employees | Manager+ |
+| 사원 | GET | /employees/{id} | Self/Manager/HR |
+| 사원 | PUT | /employees/{id} | Self/Manager/HR |
+| 학력 | GET | /employees/{id}/education | Self/HR |
+| 학력 | GET | /education | HR Manager |
+| 학력 | POST | /employees/{id}/education | HR Manager |
+| 학력 | PATCH | /education/{id} | HR Manager |
+| 학력 | DELETE | /education/{id} | HR Manager |
+| 근태 | POST | /attendance/clock-in | Authenticated |
+| 근태 | POST | /attendance/clock-out | Authenticated |
+| 근태 | GET | /attendance/records | Self/Manager |
+| 근태 | PUT | /attendance/records | Manager/HR |
+| 근태 | DELETE | /attendance/records | Manager/HR |
+| 휴가 | POST | /leave/requests | Authenticated |
+| 휴가 | GET | /leave/requests | Self/Manager |
+| 휴가 | PATCH | /leave/requests/{id}/status | Manager |
+| 공지 | POST | /posts | Manager/HR |
+| 공지 | GET | /posts | Authenticated |
+| 공지 | GET | /posts/{id} | Authenticated |
+| 공지 | PUT | /posts/{id} | Author/HR |
+| 공지 | DELETE | /posts/{id} | Author/HR |
+| 급여 | POST | /salary/records | HR Manager |
+| 급여 | GET | /salary/records | Self/HR |
+| 급여 | GET | /salary/records/{id} | Self/HR |
 
 **총 27개 주요 엔드포인트**
