@@ -16,6 +16,7 @@ import java.util.List;
 public class Position extends BaseEntity {
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "positionId")
     private Long id;
     

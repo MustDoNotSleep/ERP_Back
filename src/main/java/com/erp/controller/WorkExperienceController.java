@@ -18,8 +18,15 @@ public class WorkExperienceController {
 
     private final WorkExperienceService workExperienceService;
 
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR_MANAGER')")
+    public ResponseEntity<ApiResponse<List<WorkExperienceDto.Response>>> getAllWorkExperiences() {
+        List<WorkExperienceDto.Response> experiences = workExperienceService.getAllWorkExperiences();
+        return ResponseEntity.ok(ApiResponse.success(experiences));
+    }
+
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER') or #employeeId == authentication.principal.id")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR_MANAGER') or #employeeId == authentication.principal.id")
     public ResponseEntity<ApiResponse<List<WorkExperienceDto.Response>>> getWorkExperiencesByEmployeeId(
             @PathVariable Long employeeId) {
         List<WorkExperienceDto.Response> experiences = workExperienceService.getWorkExperiencesByEmployeeId(employeeId);
@@ -27,7 +34,7 @@ public class WorkExperienceController {
     }
     
     @PostMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER') or #employeeId == authentication.principal.id")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR_MANAGER') or #employeeId == authentication.principal.id")
     public ResponseEntity<ApiResponse<WorkExperienceDto.Response>> createWorkExperience(
             @PathVariable Long employeeId,
             @Valid @RequestBody WorkExperienceDto.Request request) {
@@ -36,7 +43,7 @@ public class WorkExperienceController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR_MANAGER')")
     public ResponseEntity<ApiResponse<WorkExperienceDto.Response>> updateWorkExperience(
             @PathVariable Long id,
             @Valid @RequestBody WorkExperienceDto.UpdateRequest request) {
@@ -45,7 +52,7 @@ public class WorkExperienceController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR_MANAGER')")
     public ResponseEntity<ApiResponse<Void>> deleteWorkExperience(@PathVariable Long id) {
         workExperienceService.deleteWorkExperience(id);
         return ResponseEntity.ok(ApiResponse.success(null));

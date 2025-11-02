@@ -36,13 +36,6 @@ public class AppointmentRequestController {
         return ResponseEntity.ok(ApiResponse.success(requests));
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<ApiResponse<AppointmentRequestDto.Response>> getRequestById(@PathVariable Long id) {
-        AppointmentRequestDto.Response request = appointmentRequestService.getRequestById(id);
-        return ResponseEntity.ok(ApiResponse.success(request));
-    }
-
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
     public ResponseEntity<ApiResponse<AppointmentRequestDto.Response>> createRequest(

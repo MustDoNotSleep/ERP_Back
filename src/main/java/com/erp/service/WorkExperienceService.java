@@ -21,6 +21,12 @@ public class WorkExperienceService {
     private final WorkExperienceRepository workExperienceRepository;
     private final EmployeeRepository employeeRepository;
 
+    public List<WorkExperienceDto.Response> getAllWorkExperiences() {
+        return workExperienceRepository.findAll().stream()
+                .map(WorkExperienceDto.Response::from)
+                .collect(Collectors.toList());
+    }
+
     public List<WorkExperienceDto.Response> getWorkExperiencesByEmployeeId(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee", employeeId.toString()));

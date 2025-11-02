@@ -34,8 +34,20 @@ public class EmployeeService {
     public Long registerEmployee(EmployeeDto.Request request) {
         validateUniqueEmail(request.getEmail());
         
-        Department department = findDepartment(request.getDepartmentId());
-        Position position = findPosition(request.getPositionId());
+        // Department 자동 생성
+        Department department = Department.builder()
+            .departmentName(request.getDepartmentName())
+            .teamName(request.getTeamName())
+            .isManagement(false)
+            .build();
+        departmentRepository.save(department);
+        
+        // Position 자동 생성 (positionLevel은 positionName에 따라 자동 매핑)
+        Position position = Position.builder()
+            .positionName(request.getPositionName())
+            .positionLevel(getPositionLevel(request.getPositionName()))
+            .build();
+        positionRepository.save(position);
         
         Employee employee = Employee.builder()
             .name(request.getName())
@@ -61,6 +73,23 @@ public class EmployeeService {
         return employee.getId();
     }
     
+    private Integer getPositionLevel(String positionName) {
+        return switch (positionName) {
+            case "사원" -> 1;
+            case "주임" -> 2;
+            case "대리" -> 3;
+            case "과장" -> 4;
+            case "차장" -> 5;
+            case "부장" -> 6;
+            case "이사" -> 7;
+            case "상무" -> 8;
+            case "전무" -> 9;
+            case "부사장" -> 10;
+            case "사장" -> 11;
+            default -> 1; // 기본값: 사원급
+        };
+    }
+    
     public EmployeeDto.Response getEmployee(Long id) {
         return employeeRepository.findById(id)
             .map(EmployeeDto.Response::from)
@@ -72,8 +101,8 @@ public class EmployeeService {
         return PageResponse.of(employees.map(EmployeeDto.Response::from));
     }
     
-    public PageResponse<EmployeeDto.Response> searchEmployees(String name, String email, 
-                                                              Long departmentId, Long positionId, 
+    public PageResponse<EmployeeDto.Response> searchEmployees(String name, String email, String employeeId,
+                                                              String departmentName, String positionName,
                                                               Pageable pageable) {
         Page<Employee> employees = employeeRepository.findAll((root, query, criteriaBuilder) -> {
             var predicates = new java.util.ArrayList<jakarta.persistence.criteria.Predicate>();
@@ -84,11 +113,14 @@ public class EmployeeService {
             if (email != null && !email.trim().isEmpty()) {
                 predicates.add(criteriaBuilder.like(root.get("email"), "%" + email + "%"));
             }
-            if (departmentId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("department").get("id"), departmentId));
+            if (employeeId != null && !employeeId.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.like(root.get("id").as(String.class), "%" + employeeId + "%"));
             }
-            if (positionId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("position").get("id"), positionId));
+            if (departmentName != null && !departmentName.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("department").get("departmentName"), departmentName));
+            }
+            if (positionName != null && !positionName.trim().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("position").get("positionName"), positionName));
             }
             
             return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));

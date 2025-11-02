@@ -34,6 +34,17 @@ public class PositionController {
         List<PositionDto.Response> positions = positionService.getAllPositionsList();
         return ResponseEntity.ok(ApiResponse.success(positions));
     }
+    
+    /**
+     * 중복 제거된 직급명 목록 (드롭다운용)
+     * GET /api/positions/unique-names
+     */
+    @GetMapping("/unique-names")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<String>>> getUniquePositionNames() {
+        List<String> uniqueNames = positionService.getUniquePositionNames();
+        return ResponseEntity.ok(ApiResponse.success(uniqueNames));
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")

@@ -16,6 +16,7 @@ import java.util.List;
 public class Department extends BaseEntity {
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "departmentId")
     private Long id;
     

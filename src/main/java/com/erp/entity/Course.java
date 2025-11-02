@@ -1,10 +1,12 @@
 package com.erp.entity;
 
 import com.erp.entity.enums.CourseType;
+import com.erp.entity.enums.RequestStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Courses")
@@ -50,6 +52,24 @@ public class Course extends BaseEntity{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator", nullable = false)
     private Employee creator; // Employee 엔티티를 참조한다고 가정
+
+    // 10. status (교육 과정 승인 상태)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private RequestStatus status = RequestStatus.PENDING;
+
+    // 11. approver (승인/반려 처리한 관리자)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approver")
+    private Employee approver;
+
+    // 12. processedDate (승인/반려 처리 일시)
+    private LocalDateTime processedDate;
+
+    // 13. comment (승인/반려 코멘트)
+    @Column(length = 500)
+    private String comment;
 
     /*
      * 비즈니스 로직 추가 영역 

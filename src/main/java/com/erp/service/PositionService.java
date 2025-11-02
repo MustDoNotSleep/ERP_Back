@@ -30,6 +30,18 @@ public class PositionService {
                 .map(PositionDto.Response::from)
                 .collect(Collectors.toList());
     }
+    
+    /**
+     * 중복 제거된 직급명 목록 반환 (드롭다운용)
+     * 예: ["사원", "주임", "대리", "과장", ...]
+     */
+    public List<String> getUniquePositionNames() {
+        return positionRepository.findAll().stream()
+                .map(Position::getPositionName)
+                .distinct() // 중복 제거
+                .sorted() // 정렬
+                .collect(Collectors.toList());
+    }
 
     public PositionDto.Response getPositionById(Long id) {
         Position position = positionRepository.findById(id)

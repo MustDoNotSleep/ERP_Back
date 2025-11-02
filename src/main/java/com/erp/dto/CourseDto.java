@@ -2,8 +2,11 @@ package com.erp.dto;
 
 import com.erp.entity.Course;
 import com.erp.entity.enums.CourseType;
+import com.erp.entity.enums.RequestStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +23,6 @@ public class CourseDto {
         private LocalDate startDate;
         private LocalDate endDate;
         private String objective;
-        private Long creatorId;
     }
     
     @Getter
@@ -35,6 +37,10 @@ public class CourseDto {
         private LocalDate endDate;
         private String objective;
         private String creatorName;
+        private RequestStatus status;
+        private String approverName;
+        private LocalDateTime processedDate;
+        private String comment;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         
@@ -50,6 +56,11 @@ public class CourseDto {
                 .objective(course.getObjective())
                 .creatorName(course.getCreator() != null ? 
                     course.getCreator().getName() : null)
+                .status(course.getStatus())
+                .approverName(course.getApprover() != null ?
+                    course.getApprover().getName() : null)
+                .processedDate(course.getProcessedDate())
+                .comment(course.getComment())
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())
                 .build();
@@ -65,5 +76,13 @@ public class CourseDto {
         private LocalDate startDate;
         private LocalDate endDate;
         private String objective;
+    }
+
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ApprovalRequest {
+        private boolean approved;
+        private String comment;
     }
 }

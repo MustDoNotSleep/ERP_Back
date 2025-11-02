@@ -45,12 +45,13 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
     public ResponseEntity<ApiResponse<PageResponse<EmployeeDto.Response>>> searchEmployees(
         @RequestParam(required = false) String name,
+        @RequestParam(required = false) String employeeId,
         @RequestParam(required = false) String email,
-        @RequestParam(required = false) Long departmentId,
-        @RequestParam(required = false) Long positionId,
+        @RequestParam(required = false) String departmentName,
+        @RequestParam(required = false) String positionName,  
         Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.success(
-            employeeService.searchEmployees(name, email, departmentId, positionId, pageable)));
+            employeeService.searchEmployees(name, email, employeeId, departmentName, positionName, pageable)));
     }
     
     @GetMapping("/department/{departmentId}")

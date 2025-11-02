@@ -45,6 +45,18 @@ public class DepartmentService {
             .collect(Collectors.toList());
     }
     
+    /**
+     * 중복 제거된 부서명 목록 반환 (드롭다운용)
+     * 예: ["경영기획본부", "사이버관제본부", "자율보안본부", ...]
+     */
+    public List<String> getUniqueDepartmentNames() {
+        return departmentRepository.findAll().stream()
+            .map(Department::getDepartmentName)
+            .distinct() // 중복 제거
+            .sorted() // 가나다순 정렬
+            .collect(Collectors.toList());
+    }
+    
     @Transactional
     public void updateDepartment(Long id, DepartmentDto.UpdateRequest request) {
         Department department = findDepartment(id);

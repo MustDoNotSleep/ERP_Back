@@ -42,6 +42,15 @@ public class CourseApplicationService {
                 .collect(Collectors.toList());
     }
 
+    public List<CourseApplicationDto.Response> getApplicationsByCourseId(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new EntityNotFoundException("Course", courseId.toString()));
+        
+        return courseApplicationRepository.findByCourse(course).stream()
+                .map(CourseApplicationDto.Response::from)
+                .collect(Collectors.toList());
+    }
+
     public CourseApplicationDto.Response getApplicationById(Long id) {
         CourseApplication application = courseApplicationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("CourseApplication", id.toString()));

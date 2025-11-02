@@ -40,6 +40,17 @@ public class DepartmentController {
             departmentService.getAllDepartments()));
     }
     
+    /**
+     * 중복 제거된 부서명 목록 (드롭다운용)
+     * GET /api/departments/unique-names
+     */
+    @GetMapping("/unique-names")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<String>>> getUniqueDepartmentNames() {
+        return ResponseEntity.ok(ApiResponse.success(
+            departmentService.getUniqueDepartmentNames()));
+    }
+    
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiResponse<Void>> updateDepartment(

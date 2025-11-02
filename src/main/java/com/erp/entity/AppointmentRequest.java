@@ -41,15 +41,18 @@ public class AppointmentRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "newDepartmentId") // Nullable, 전보(TRANSFER)가 아닐 경우 필요 없을 수 있음
     private Department newDepartment;
+    
+    // 5-1. newPositionId (발령 후 새 직급)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "newPositionId") // Nullable, 승진/강등이 아닐 경우 필요 없을 수 있음
+    private Position newPosition;
 
-    // 6. effectiveStartDate (발령 시작일)
-    private LocalDate effectiveStartDate;
-
-    // 7. effectiveEndDate (발령 종료일 - 휴직, 파견 등의 경우 사용)
-    private LocalDate effectiveEndDate;
+    // 6. effectiveDate (발령 일자)
+    private LocalDate effectiveDate;
 
     // 8. reason (TEXT 타입이므로 String으로 매핑)
     @Lob // 데이터베이스에서 TEXT 타입으로 매핑되도록 힌트를 줌
+    @Column(columnDefinition = "TEXT")
     private String reason;
 
     // 9. status (Enum 적용)

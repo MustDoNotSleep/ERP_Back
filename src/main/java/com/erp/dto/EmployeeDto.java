@@ -3,6 +3,7 @@ package com.erp.dto;
 import com.erp.entity.Employee;
 import com.erp.entity.enums.EmploymentType;
 import com.erp.entity.enums.Nationality;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,7 +15,10 @@ public class EmployeeDto {
     @Builder
     public static class Request {
         private String name;
+        
+        @JsonProperty("nameeng")  // 프론트에서 "nameeng"으로 보내도 OK
         private String nameEng;
+        
         private String email;
         private String password;
         private String rrn;
@@ -25,8 +29,9 @@ public class EmployeeDto {
         private LocalDate hireDate;
         private LocalDate quitDate;
         private String internalNumber;
-        private Long departmentId;
-        private Long positionId;
+        private String departmentName;
+        private String teamName;
+        private String positionName;
         private String familyCertificate;
         private EmploymentType employmentType;
         private Nationality nationality;
