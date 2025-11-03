@@ -70,8 +70,21 @@ public class AppointmentRequest {
 
     // 12. processedDate (처리 완료 일시 - 승인/반려된 시점)
     private LocalDateTime processedDate;
+    
+    // 13. isApplied (발령 적용 여부 - 스케줄러가 실제로 적용했는지 표시)
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isApplied = false;
+    
+    // 14. appliedDate (발령 적용 일시 - 스케줄러가 실제로 적용한 시점)
+    private LocalDateTime appliedDate;
 
     /*
      * 비즈니스 로직 추가 영역 (예: 상태 변경, 승인/반려 메서드)
      */
+    
+    public void markAsApplied() {
+        this.isApplied = true;
+        this.appliedDate = LocalDateTime.now();
+    }
 }

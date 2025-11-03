@@ -2,7 +2,7 @@
 
 -- 1. Attendance Table
 CREATE TABLE attendance (
-    attendanceId VARCHAR(36) PRIMARY KEY,
+    attendanceId BIGINT(36) PRIMARY KEY,
     employeeId BIGINT NOT NULL,
     checkIn DATETIME NOT NULL,
     checkOut DATETIME,

@@ -7,6 +7,8 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Courses")
@@ -70,6 +72,11 @@ public class Course extends BaseEntity{
     // 13. comment (승인/반려 코멘트)
     @Column(length = 500)
     private String comment;
+
+    // 14. courseApplications (이 과정에 신청한 직원들)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CourseApplication> courseApplications = new ArrayList<>();
 
     /*
      * 비즈니스 로직 추가 영역 
