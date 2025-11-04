@@ -52,6 +52,40 @@ public class AttendanceController {
     }
     
     /**
+     * 근태 상세 조회
+     */
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    public ResponseEntity<ApiResponse<AttendanceDto.Response>> getAttendance(
+        @PathVariable Long id) {
+        AttendanceDto.Response response = attendanceService.getAttendance(id);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+    
+    /**
+     * 근태 수정 (관리자용)
+     */
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<AttendanceDto.Response>> updateAttendance(
+        @PathVariable Long id,
+        @RequestBody AttendanceDto.Request request) {
+        AttendanceDto.Response response = attendanceService.updateAttendance(id, request);
+        return ResponseEntity.ok(ApiResponse.success("근태가 수정되었습니다.", response));
+    }
+    
+    /**
+     * 근태 삭제 (관리자용)
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<Void>> deleteAttendance(
+        @PathVariable Long id) {
+        attendanceService.deleteAttendance(id);
+        return ResponseEntity.ok(ApiResponse.success("근태가 삭제되었습니다.", null));
+    }
+    
+    /**
      * 특정 직원의 근태 조회
      */
     @GetMapping("/employee/{employeeId}")

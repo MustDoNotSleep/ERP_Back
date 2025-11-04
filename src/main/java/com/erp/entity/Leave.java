@@ -33,6 +33,9 @@ public class Leave extends BaseEntity {
     @Column(nullable = false)
     private LeaveDuration duration; // 연차, 반차, 반반차
     
+    @Column(name = "leaveDays", nullable = false)
+    private Double leaveDays; // 실제 사용 일수 (duration의 일수 값)
+    
     @Column(name = "startDate", nullable = false)
     private LocalDate startDate;
     
@@ -46,12 +49,20 @@ public class Leave extends BaseEntity {
     private LeaveStatus status;
     
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "annualLeaveBalanceId")
+    private AnnualLeaveBalance annualLeaveBalance; // 사용한 연차 잔여 (연차인 경우에만)
+    
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approvedBy")
     private Employee approvedBy;
     
     private LocalDate approvedAt;
     
     // Business methods
+    public void setAnnualLeaveBalance(AnnualLeaveBalance balance) {
+        this.annualLeaveBalance = balance;
+    }
+    
     public void approve(Employee approver) {
         this.approvedBy = approver;
         this.approvedAt = LocalDate.now();

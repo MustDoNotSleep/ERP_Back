@@ -1,10 +1,16 @@
 package com.erp.service;
 
 import com.erp.dto.LeaveDto;
+import com.erp.entity.AnnualLeaveBalance;
+import com.erp.entity.Attendance;
 import com.erp.entity.Employee;
 import com.erp.entity.Leave;
+import com.erp.entity.enums.AttendanceType;
 import com.erp.entity.enums.LeaveDuration;
 import com.erp.entity.enums.LeaveStatus;
+import com.erp.entity.enums.LeaveType;
+import com.erp.repository.AnnualLeaveBalanceRepository;
+import com.erp.repository.AttendanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +21,7 @@ import com.erp.repository.LeaveRepository;
 import com.erp.repository.EmployeeRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +34,9 @@ public class LeaveService {
     
     private final LeaveRepository leaveRepository;
     private final EmployeeRepository employeeRepository;
+    private final AnnualLeaveBalanceRepository annualLeaveBalanceRepository;
+    private final AnnualLeaveService annualLeaveService;
+    private final AttendanceRepository attendanceRepository;
     
     /**
      * 휴가 신청
@@ -45,10 +55,31 @@ public class LeaveService {
             throw new IllegalStateException("해당 기간에 이미 승인된 휴가가 있습니다.");
         }
         
+        // 실제 사용 일수 계산
+        double leaveDays = calculateLeaveDays(request.getStartDate(), request.getEndDate(), request.getDuration());
+        
+        log.info("휴가 일수 계산 - 시작일: {}, 종료일: {}, duration: {}, 계산된 일수: {}일",
+            request.getStartDate(), request.getEndDate(), request.getDuration().getKoreanName(), leaveDays);
+        
+        // 연차인 경우 잔여 연차 확인
+        if (request.getType().isDeductFromAnnual()) {
+            int year = request.getStartDate().getYear();
+            AnnualLeaveBalance balance = annualLeaveBalanceRepository
+                .findByEmployeeAndYear(employee, year)
+                .orElseThrow(() -> new IllegalStateException("사용 가능한 연차가 없습니다."));
+            
+            if (balance.getRemainingDays() < leaveDays) {
+                throw new IllegalStateException(
+                    String.format("연차가 부족합니다. (신청: %.1f일, 잔여: %.1f일)", 
+                        leaveDays, balance.getRemainingDays()));
+            }
+        }
+        
         Leave leave = Leave.builder()
             .employee(employee)
             .type(request.getType())
             .duration(request.getDuration())
+            .leaveDays(leaveDays)
             .startDate(request.getStartDate())
             .endDate(request.getEndDate())
             .reason(request.getReason())
@@ -56,8 +87,14 @@ public class LeaveService {
             .build();
         
         Leave saved = leaveRepository.save(leave);
-        log.info("휴가 신청 완료 - 직원: {}, 종류: {}, 기간: {} ~ {}",
-            employee.getName(), saved.getType(), saved.getStartDate(), saved.getEndDate());
+        
+        log.info("휴가 신청 완료 - 직원: {}, 종류: {} ({}), 기간: {} ~ {}, 일수: {}일",
+            employee.getName(), 
+            saved.getType().getKoreanName(),
+            saved.getType().isPaid() ? "유급" : "무급",
+            saved.getStartDate(), 
+            saved.getEndDate(),
+            saved.getLeaveDays());
         
         return toResponse(saved);
     }
@@ -119,8 +156,41 @@ public class LeaveService {
         }
         
         if (request.getApproved()) {
+            log.info("🔍 휴가 승인 시작 - 휴가 ID: {}, 직원: {}, 종류: {}, 일수: {}일", 
+                leaveId, leave.getEmployee().getName(), leave.getType().getKoreanName(), leave.getLeaveDays());
+            
+            // 승인 - 연차 차감 및 참조 설정
+            if (leave.getType().isDeductFromAnnual()) {
+                log.info("✅ 연차 차감 대상 확인 - isDeductFromAnnual: true");
+                
+                int year = leave.getStartDate().getYear();
+                AnnualLeaveBalance balance = annualLeaveBalanceRepository
+                    .findByEmployeeAndYear(leave.getEmployee(), year)
+                    .orElseThrow(() -> new IllegalStateException("연차 잔여 정보를 찾을 수 없습니다."));
+                
+                log.info("📊 차감 전 - 총: {}일, 사용: {}일, 잔여: {}일", 
+                    balance.getTotalDays(), balance.getUsedDays(), balance.getRemainingDays());
+                
+                balance.useLeave(leave.getLeaveDays());
+                leave.setAnnualLeaveBalance(balance); // 연차 잔여 참조 설정
+                
+                log.info("📊 차감 후 - 총: {}일, 사용: {}일, 잔여: {}일", 
+                    balance.getTotalDays(), balance.getUsedDays(), balance.getRemainingDays());
+                log.info("✅ 연차 차감 완료 - 직원: {}, 차감: {}일, 최종 잔여: {}일",
+                    leave.getEmployee().getName(), leave.getLeaveDays(), balance.getRemainingDays());
+            } else {
+                log.info("⏭️ 연차 차감 스킵 - isDeductFromAnnual: false (종류: {})", leave.getType().getKoreanName());
+            }
+            
             leave.approve(approver);
-            log.info("휴가 승인 완료 - 휴가 ID: {}, 승인자: {}", leaveId, approver.getName());
+            
+            // 휴가 기간 동안 출근 기록 자동 생성
+            createAttendanceRecordsForLeave(leave);
+            
+            log.info("휴가 승인 완료 - 휴가 ID: {}, 승인자: {}, 종류: {} ({})",
+                leaveId, approver.getName(), 
+                leave.getType().getKoreanName(),
+                leave.getType().isPaid() ? "유급" : "무급");
         } else {
             leave.reject(approver);
             log.info("휴가 반려 완료 - 휴가 ID: {}, 반려자: {}", leaveId, approver.getName());
@@ -151,6 +221,23 @@ public class LeaveService {
             throw new IllegalStateException("이미 취소된 휴가입니다.");
         }
         
+        // 승인된 연차였다면 복구
+        if (leave.getStatus() == LeaveStatus.APPROVED && leave.getType().isDeductFromAnnual()) {
+            int year = leave.getStartDate().getYear();
+            AnnualLeaveBalance balance = annualLeaveBalanceRepository
+                .findByEmployeeAndYear(leave.getEmployee(), year)
+                .orElseThrow(() -> new IllegalStateException("연차 잔여 정보를 찾을 수 없습니다."));
+            
+            balance.cancelLeave(leave.getLeaveDays());
+            log.info("연차 복구 - 직원: {}, 복구: {}일, 잔여: {}일",
+                leave.getEmployee().getName(), leave.getLeaveDays(), balance.getRemainingDays());
+        }
+        
+        // 승인된 휴가였다면 생성된 출근 기록 삭제
+        if (leave.getStatus() == LeaveStatus.APPROVED) {
+            deleteAttendanceRecordsForLeave(leave);
+        }
+        
         leave.cancel();
         Leave saved = leaveRepository.save(leave);
         log.info("휴가 취소 완료 - 휴가 ID: {}, 직원: {}", leaveId, employee.getName());
@@ -165,28 +252,34 @@ public class LeaveService {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다."));
         
+        // 연차 잔여 정보 조회
+        AnnualLeaveBalance balance = annualLeaveBalanceRepository
+            .findByEmployeeAndYear(employee, year)
+            .orElse(null);
+        
+        double totalAnnualLeave = balance != null ? balance.getTotalDays() : 0.0;
+        double usedAnnualLeave = balance != null ? balance.getUsedDays() : 0.0;
+        double remainingAnnualLeave = balance != null ? balance.getRemainingDays() : 0.0;
+        
+        // 기타 휴가 통계
         List<Leave> approvedLeaves = leaveRepository.findApprovedLeavesByEmployeeAndYear(employee, year);
         
-        double usedAnnualLeave = approvedLeaves.stream()
-            .filter(l -> l.getType() == com.erp.entity.enums.LeaveType.ANNUAL)
-            .mapToDouble(this::calculateLeaveDays)
+        long sickDays = approvedLeaves.stream()
+            .filter(l -> l.getType().getKoreanName().contains("병가"))
+            .mapToLong(l -> l.getLeaveDays().longValue())
             .sum();
         
-        long sickDays = approvedLeaves.stream()
-            .filter(l -> l.getType() == com.erp.entity.enums.LeaveType.SICK)
-            .count();
-        
         long maternityDays = approvedLeaves.stream()
-            .filter(l -> l.getType() == com.erp.entity.enums.LeaveType.MATERNITY)
+            .filter(l -> l.getType().getKoreanName().contains("출산") || 
+                        l.getType().getKoreanName().contains("육아"))
             .mapToLong(this::calculateTotalDays)
             .sum();
         
         long bereavementDays = approvedLeaves.stream()
-            .filter(l -> l.getType() == com.erp.entity.enums.LeaveType.BEREAVEMENT)
-            .count();
-        
-        // 연차는 보통 15일 기본 (입사년수에 따라 다를 수 있음)
-        double totalAnnualLeave = 15.0;
+            .filter(l -> l.getType().getKoreanName().contains("경조사") ||
+                        l.getType().getKoreanName().contains("결혼"))
+            .mapToLong(l -> l.getLeaveDays().longValue())
+            .sum();
         
         return LeaveDto.Statistics.builder()
             .employeeId(employee.getId())
@@ -194,7 +287,7 @@ public class LeaveService {
             .year(year)
             .totalAnnualLeave(totalAnnualLeave)
             .usedAnnualLeave(usedAnnualLeave)
-            .remainingAnnualLeave(totalAnnualLeave - usedAnnualLeave)
+            .remainingAnnualLeave(remainingAnnualLeave)
             .totalSickLeave((int) sickDays)
             .totalMaternityLeave((int) maternityDays)
             .totalBereavementLeave((int) bereavementDays)
@@ -202,17 +295,97 @@ public class LeaveService {
     }
     
     /**
+     * 휴가 승인 시 출근 기록 자동 생성
+     */
+    private void createAttendanceRecordsForLeave(Leave leave) {
+        LocalDate currentDate = leave.getStartDate();
+        LocalDate endDate = leave.getEndDate();
+        
+        while (!currentDate.isAfter(endDate)) {
+            // 주말 제외 (토요일=6, 일요일=7)
+            if (currentDate.getDayOfWeek().getValue() < 6) {
+                // 이미 출근 기록이 있는지 확인
+                LocalDateTime dayStart = currentDate.atStartOfDay();
+                LocalDateTime dayEnd = currentDate.atTime(23, 59, 59);
+                
+                boolean hasAttendance = attendanceRepository.existsByEmployeeAndCheckInBetween(
+                    leave.getEmployee(), dayStart, dayEnd);
+                
+                if (!hasAttendance) {
+                    // 휴가 출근 기록 생성
+                    Attendance attendance = Attendance.builder()
+                        .employee(leave.getEmployee())
+                        .checkIn(currentDate.atTime(9, 0)) // 09:00으로 설정
+                        .checkOut(currentDate.atTime(18, 0)) // 18:00으로 설정
+                        .attendanceType(AttendanceType.LEAVE)
+                        .leave(leave)
+                        .note(leave.getType().getKoreanName() + " - " + leave.getReason())
+                        .workHours(0.0)
+                        .overtimeHours(0.0)
+                        .build();
+                    
+                    attendanceRepository.save(attendance);
+                }
+            }
+            
+            currentDate = currentDate.plusDays(1);
+        }
+        
+        log.info("휴가 출근 기록 생성 완료 - 직원: {}, 기간: {} ~ {}",
+            leave.getEmployee().getName(), leave.getStartDate(), leave.getEndDate());
+    }
+    
+    /**
+     * 휴가 취소 시 출근 기록 삭제
+     */
+    private void deleteAttendanceRecordsForLeave(Leave leave) {
+        LocalDate currentDate = leave.getStartDate();
+        LocalDate endDate = leave.getEndDate();
+        int deletedCount = 0;
+        
+        while (!currentDate.isAfter(endDate)) {
+            LocalDateTime dayStart = currentDate.atStartOfDay();
+            LocalDateTime dayEnd = currentDate.atTime(23, 59, 59);
+            
+            // 휴가로 인한 출근 기록 조회 및 삭제
+            List<Attendance> attendances = attendanceRepository
+                .findByEmployeeAndCheckInBetweenOrderByCheckInDesc(leave.getEmployee(), dayStart, dayEnd);
+            
+            for (Attendance attendance : attendances) {
+                if (attendance.isOnLeave() && 
+                    attendance.getLeave() != null && 
+                    attendance.getLeave().getId().equals(leave.getId())) {
+                    attendanceRepository.delete(attendance);
+                    deletedCount++;
+                }
+            }
+            
+            currentDate = currentDate.plusDays(1);
+        }
+        
+        log.info("휴가 출근 기록 삭제 완료 - 직원: {}, 삭제 건수: {}",
+            leave.getEmployee().getName(), deletedCount);
+    }
+    
+    /**
      * 휴가 일수 계산 (duration 반영)
      */
-    private double calculateLeaveDays(Leave leave) {
-        long daysBetween = ChronoUnit.DAYS.between(leave.getStartDate(), leave.getEndDate()) + 1;
+    /**
+     * 휴가 일수 계산
+     * - FULL_DAY: 날짜 차이만큼 (예: 3일 연차 = 3.0일)
+     * - HALF_DAY: 0.5일 (반차는 1개만 가능)
+     * - QUARTER_DAY: 0.25일 (반반차는 1개만 가능)
+     */
+    private double calculateLeaveDays(LocalDate startDate, LocalDate endDate, LeaveDuration duration) {
+        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         
         // duration에 따라 실제 사용 일수 계산
-        if (leave.getDuration() == LeaveDuration.HALF_DAY) {
-            return 0.5;
-        } else if (leave.getDuration() == LeaveDuration.QUARTER_DAY) {
-            return 0.25;
+        if (duration == LeaveDuration.HALF_DAY) {
+            return 0.5;  // 반차는 무조건 0.5일
+        } else if (duration == LeaveDuration.QUARTER_DAY) {
+            return 0.25; // 반반차는 무조건 0.25일
         } else {
+            // FULL_DAY인 경우 날짜 차이만큼 (주말 포함)
             return daysBetween;
         }
     }

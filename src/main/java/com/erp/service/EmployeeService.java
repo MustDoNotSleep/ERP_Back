@@ -10,6 +10,7 @@ import com.erp.exception.EntityNotFoundException;
 import com.erp.repository.DepartmentRepository;
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.PositionRepository;
+import com.erp.scheduler.AnnualLeaveScheduler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ public class EmployeeService {
     private final DepartmentRepository departmentRepository;
     private final PositionRepository positionRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AnnualLeaveScheduler annualLeaveScheduler;
     
     @Transactional
     public Long registerEmployee(EmployeeDto.Request request) {
@@ -70,6 +72,15 @@ public class EmployeeService {
             .build();
         
         employeeRepository.save(employee);
+        
+        // 신규 직원 연차 자동 배급
+        try {
+            annualLeaveScheduler.generateLeaveForNewEmployee(employee);
+        } catch (Exception e) {
+            // 연차 배급 실패해도 직원 등록은 완료
+            // 다음 스케줄러 실행 시 자동 처리됨
+        }
+        
         return employee.getId();
     }
     

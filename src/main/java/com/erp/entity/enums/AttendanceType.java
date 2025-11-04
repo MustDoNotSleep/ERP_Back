@@ -8,6 +8,7 @@ public enum AttendanceType {
     LATE("지각"),
     EARLY_LEAVE("조퇴"),
     ABSENT("결근"),
+    LEAVE("휴가"),
     REMOTE("재택근무"),
     OVERTIME("야근"),
     WEEKEND_WORK("주말근무"),

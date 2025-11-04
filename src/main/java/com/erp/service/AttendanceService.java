@@ -171,9 +171,66 @@ public class AttendanceService {
         }
         
         Attendance saved = attendanceRepository.save(attendance);
-        log.info("근태 등록 완료 - 직원: {}, 날짜: {}", employee.getName(), saved.getCheckIn());
         
         return toResponse(saved);
+    }
+    
+    /**
+     * 근태 상세 조회
+     */
+    public AttendanceDto.Response getAttendance(Long id) {
+        Attendance attendance = attendanceRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("근태 기록을 찾을 수 없습니다."));
+        return toResponse(attendance);
+    }
+    
+    /**
+     * 근태 수정 (관리자용)
+     */
+    @Transactional
+    public AttendanceDto.Response updateAttendance(Long id, AttendanceDto.Request request) {
+        Attendance attendance = attendanceRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("근태 기록을 찾을 수 없습니다."));
+        
+        // 기존 레코드 삭제
+        attendanceRepository.delete(attendance);
+        attendanceRepository.flush(); // 즉시 삭제 반영
+        
+        // 출퇴근 시간 결정
+        LocalDateTime newCheckIn = request.getCheckIn() != null ? request.getCheckIn() : attendance.getCheckIn();
+        LocalDateTime newCheckOut = request.getCheckOut() != null ? request.getCheckOut() : attendance.getCheckOut();
+        
+        // 근태 타입 자동 결정
+        AttendanceType newType = determineCheckInType(newCheckIn, null);
+        if (newCheckOut != null) {
+            newType = determineFinalAttendanceType(newCheckIn, newCheckOut, newType);
+        }
+        
+        // 새로운 엔티티 생성
+        Attendance newAttendance = Attendance.builder()
+            .employee(attendance.getEmployee())
+            .checkIn(newCheckIn)
+            .checkOut(newCheckOut)
+            .attendanceType(newType)
+            .note(request.getNote() != null ? request.getNote() : attendance.getNote())
+            .build();
+        
+        if (newCheckOut != null) {
+            newAttendance.checkOut(newCheckOut);
+        }
+        
+        Attendance saved = attendanceRepository.save(newAttendance);
+        return toResponse(saved);
+    }
+    
+    /**
+     * 근태 삭제 (관리자용)
+     */
+    @Transactional
+    public void deleteAttendance(Long id) {
+        Attendance attendance = attendanceRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("근태 기록을 찾을 수 없습니다."));
+        attendanceRepository.delete(attendance);
     }
     
     /**
@@ -279,6 +336,10 @@ public class AttendanceService {
             .workHours(attendance.getWorkHours())
             .overtimeHours(attendance.getOvertimeHours())
             .createdAt(attendance.getCreatedAt())
+            .isOnLeave(attendance.isOnLeave())
+            .leaveId(attendance.getLeave() != null ? attendance.getLeave().getId() : null)
+            .leaveType(attendance.getLeave() != null ? attendance.getLeave().getType() : null)
+            .leaveReason(attendance.getLeave() != null ? attendance.getLeave().getReason() : null)
             .build();
     }
 }

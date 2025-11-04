@@ -1,6 +1,7 @@
 package com.erp.dto;
 
 import com.erp.entity.enums.AttendanceType;
+import com.erp.entity.enums.LeaveType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,6 +39,12 @@ public class AttendanceDto {
         private Double workHours;
         private Double overtimeHours;
         private LocalDateTime createdAt;
+        
+        // 휴가 정보
+        private Boolean isOnLeave;
+        private Long leaveId;
+        private LeaveType leaveType;
+        private String leaveReason;
     }
     
     @Data

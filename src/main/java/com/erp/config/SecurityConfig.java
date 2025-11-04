@@ -51,6 +51,9 @@ public class SecurityConfig {
                     "/public/**"
                 ).permitAll()
                 
+                // 연차 관리 (임시로 공개 - 테스트용)
+                .requestMatchers("/annual-leave/**").permitAll()
+                
                 // 관리자 전용
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 

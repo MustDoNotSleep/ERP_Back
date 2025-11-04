@@ -35,6 +35,10 @@ public class Attendance extends BaseEntity {
     
     private String note;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "leaveId")
+    private Leave leave; // 휴가 참조 (휴가인 경우에만)
+    
     @Column(name = "workHours")
     private Double workHours;
     
@@ -42,6 +46,14 @@ public class Attendance extends BaseEntity {
     private Double overtimeHours; // 초과근무 시간
     
     // Business methods
+    public void setLeave(Leave leave) {
+        this.leave = leave;
+    }
+    
+    public boolean isOnLeave() {
+        return this.leave != null;
+    }
+    
     public void checkOut(LocalDateTime checkOutTime) {
         this.checkOut = checkOutTime;
         calculateWorkHours();

@@ -48,4 +48,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate
     );
+    
+    // 특정 직원의 특정 시간대 출근 기록 존재 여부 확인
+    boolean existsByEmployeeAndCheckInBetween(
+        Employee employee, LocalDateTime startDate, LocalDateTime endDate
+    );
 }
