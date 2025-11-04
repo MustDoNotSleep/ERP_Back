@@ -1,5 +1,6 @@
 package com.erp.entity;
 
+import com.erp.entity.enums.AttendanceType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,27 +31,47 @@ public class Attendance extends BaseEntity {
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AttendanceType type;
+    private AttendanceType attendanceType;
     
     private String note;
     
     @Column(name = "workHours")
     private Double workHours;
     
-    public enum AttendanceType {
-        NORMAL, LATE, EARLY_LEAVE, ABSENT, REMOTE
-    }
+    @Column(name = "overtimeHours")
+    private Double overtimeHours; // 초과근무 시간
     
     // Business methods
     public void checkOut(LocalDateTime checkOutTime) {
         this.checkOut = checkOutTime;
         calculateWorkHours();
+        calculateOvertimeHours();
+    }
+    
+    public void updateAttendanceType(AttendanceType attendanceType) {
+        this.attendanceType = attendanceType;
+    }
+    
+    public void updateNote(String note) {
+        if (note != null) {
+            this.note = note;
+        }
     }
     
     private void calculateWorkHours() {
         if (checkIn != null && checkOut != null) {
-            this.workHours = checkOut.getHour() - checkIn.getHour() 
-                + (checkOut.getMinute() - checkIn.getMinute()) / 60.0;
+            long hours = java.time.Duration.between(checkIn, checkOut).toHours();
+            long minutes = java.time.Duration.between(checkIn, checkOut).toMinutes() % 60;
+            this.workHours = hours + minutes / 60.0;
+        }
+    }
+    
+    private void calculateOvertimeHours() {
+        if (workHours != null && workHours > 8.0) {
+            // 기본 근무시간(8시간) 초과분을 초과근무로 계산
+            this.overtimeHours = workHours - 8.0;
+        } else {
+            this.overtimeHours = 0.0;
         }
     }
 }

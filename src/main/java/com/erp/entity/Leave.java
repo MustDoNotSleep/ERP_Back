@@ -1,71 +1,70 @@
-// package com.erp.entity;
+package com.erp.entity;
 
-// import jakarta.persistence.*;
-// import lombok.*;
+import com.erp.entity.enums.LeaveDuration;
+import com.erp.entity.enums.LeaveStatus;
+import com.erp.entity.enums.LeaveType;
+import jakarta.persistence.*;
+import lombok.*;
 
-// import java.time.LocalDate;
+import java.time.LocalDate;
 
-// @Entity
-// @Table(name = "leaves")
-// @Getter
-// @NoArgsConstructor(access = AccessLevel.PROTECTED)
-// @AllArgsConstructor
-// @Builder
-// public class Leave extends BaseEntity {
+@Entity
+@Table(name = "leaves")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+public class Leave extends BaseEntity {
     
-//     @Id
-//     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//     @Column(name = "leaveId")
-//     private String id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "leaveId")
+    private Long id;
     
-//     @ManyToOne(fetch = FetchType.LAZY)
-//     @JoinColumn(name = "employeeId")
-//     private Employee employee;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employeeId")
+    private Employee employee;
     
-//     @Enumerated(EnumType.STRING)
-//     @Column(nullable = false)
-//     private LeaveType type;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeaveType type;
     
-//     @Column(name = "startDate", nullable = false)
-//     private LocalDate startDate;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeaveDuration duration; // 연차, 반차, 반반차
     
-//     @Column(name = "endDate", nullable = false)
-//     private LocalDate endDate;
+    @Column(name = "startDate", nullable = false)
+    private LocalDate startDate;
     
-//     private String reason;
+    @Column(name = "endDate", nullable = false)
+    private LocalDate endDate;
     
-//     @Enumerated(EnumType.STRING)
-//     @Column(nullable = false)
-//     private LeaveStatus status;
+    private String reason;
     
-//     @ManyToOne(fetch = FetchType.LAZY)
-//     @JoinColumn(name = "approvedBy")
-//     private Employee approvedBy;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LeaveStatus status;
     
-//     private LocalDate approvedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approvedBy")
+    private Employee approvedBy;
     
-//     public enum LeaveType {
-//         ANNUAL, SICK, PERSONAL, MATERNITY, PATERNITY, BEREAVEMENT
-//     }
+    private LocalDate approvedAt;
     
-//     public enum LeaveStatus {
-//         PENDING, APPROVED, REJECTED, CANCELLED
-//     }
+    // Business methods
+    public void approve(Employee approver) {
+        this.approvedBy = approver;
+        this.approvedAt = LocalDate.now();
+        this.status = LeaveStatus.APPROVED;
+    }
     
-//     // Business methods
-//     public void approve(Employee approver) {
-//         this.approvedBy = approver;
-//         this.approvedAt = LocalDate.now();
-//         this.status = LeaveStatus.APPROVED;
-//     }
+    public void reject(Employee approver) {
+        this.approvedBy = approver;
+        this.approvedAt = LocalDate.now();
+        this.status = LeaveStatus.REJECTED;
+    }
     
-//     public void reject(Employee approver) {
-//         this.approvedBy = approver;
-//         this.approvedAt = LocalDate.now();
-//         this.status = LeaveStatus.REJECTED;
-//     }
-    
-//     public void cancel() {
-//         this.status = LeaveStatus.CANCELLED;
-//     }
-// }
+    public void cancel() {
+        this.status = LeaveStatus.CANCELLED;
+    }
+}

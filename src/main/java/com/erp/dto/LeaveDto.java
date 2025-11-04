@@ -1,58 +1,71 @@
-// package com.erp.dto;
+package com.erp.dto;
 
-// import com.erp.entity.Leave;
-// import lombok.Builder;
-// import lombok.Getter;
+import com.erp.entity.enums.LeaveDuration;
+import com.erp.entity.enums.LeaveStatus;
+import com.erp.entity.enums.LeaveType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-// import java.time.LocalDate;
+import java.time.LocalDate;
 
-// public class LeaveDto {
+public class LeaveDto {
     
-//     @Getter
-//     @Builder
-//     public static class Request {
-//         private String employeeId;
-//         private Leave.LeaveType type;
-//         private LocalDate startDate;
-//         private LocalDate endDate;
-//         private String reason;
-//     }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Request {
+        private LeaveType type;
+        private LeaveDuration duration;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String reason;
+    }
     
-//     @Getter
-//     @Builder
-//     public static class Response {
-//         private String id;
-//         private String employeeName;
-//         private String departmentName;
-//         private Leave.LeaveType type;
-//         private LocalDate startDate;
-//         private LocalDate endDate;
-//         private String reason;
-//         private Leave.LeaveStatus status;
-//         private String approvedBy;
-//         private LocalDate approvedAt;
-        
-//         public static Response from(Leave leave) {
-//             return Response.builder()
-//                 .id(leave.getId())
-//                 .employeeName(leave.getEmployee().getName())
-//                 .departmentName(leave.getEmployee().getDepartment().getName())
-//                 .type(leave.getType())
-//                 .startDate(leave.getStartDate())
-//                 .endDate(leave.getEndDate())
-//                 .reason(leave.getReason())
-//                 .status(leave.getStatus())
-//                 .approvedBy(leave.getApprovedBy() != null ? 
-//                     leave.getApprovedBy().getName() : null)
-//                 .approvedAt(leave.getApprovedAt())
-//                 .build();
-//         }
-//     }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Response {
+        private Long id;
+        private Long employeeId;
+        private String employeeName;
+        private String departmentName;
+        private LeaveType type;
+        private LeaveDuration duration;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private String reason;
+        private LeaveStatus status;
+        private Long approvedById;
+        private String approvedByName;
+        private LocalDate approvedAt;
+        private LocalDate createdAt;
+    }
     
-//     @Getter
-//     @Builder
-//     public static class ApprovalRequest {
-//         private String approverId;
-//         private boolean approved;
-//     }
-// }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ApprovalRequest {
+        private Boolean approved; // true: 승인, false: 반려
+    }
+    
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Statistics {
+        private Long employeeId;
+        private String employeeName;
+        private Integer year;
+        private Double totalAnnualLeave;       // 연차 총 일수
+        private Double usedAnnualLeave;        // 사용한 연차
+        private Double remainingAnnualLeave;   // 남은 연차
+        private Integer totalSickLeave;        // 병가 일수
+        private Integer totalMaternityLeave;   // 출산휴가 일수
+        private Integer totalBereavementLeave; // 조의 일수
+    }
+}

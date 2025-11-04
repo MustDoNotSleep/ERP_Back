@@ -1,27 +1,62 @@
-// package com.erp.repository;
+package com.erp.repository;
 
-// import com.erp.entity.Leave;
-// import com.erp.entity.Employee;
-// import org.springframework.data.jpa.repository.JpaRepository;
-// import org.springframework.data.jpa.repository.Query;
-// import org.springframework.stereotype.Repository;
+import com.erp.entity.Employee;
+import com.erp.entity.Leave;
+import com.erp.entity.enums.LeaveStatus;
+import com.erp.entity.enums.LeaveType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
-// import java.time.LocalDate;
-// import java.util.List;
+import java.time.LocalDate;
+import java.util.List;
 
-// @Repository
-// public interface LeaveRepository extends JpaRepository<Leave, String> {
-//     List<Leave> findByEmployee(Employee employee);
-//     List<Leave> findByEmployeeAndStatus(Employee employee, Leave.LeaveStatus status);
+@Repository
+public interface LeaveRepository extends JpaRepository<Leave, Long> {
     
-//     List<Leave> findByStartDateBetweenOrEndDateBetween(
-//         LocalDate startDate1, LocalDate endDate1,
-//         LocalDate startDate2, LocalDate endDate2
-//     );
+    // 특정 직원의 모든 휴가 조회
+    List<Leave> findByEmployeeOrderByStartDateDesc(Employee employee);
     
-//     @Query("SELECT l FROM Leave l WHERE l.employee = ?1 AND l.status = 'APPROVED' " +
-//            "AND ((l.startDate BETWEEN ?2 AND ?3) OR (l.endDate BETWEEN ?2 AND ?3))")
-//     List<Leave> findApprovedLeavesInPeriod(Employee employee, LocalDate startDate, LocalDate endDate);
+    // 특정 직원의 상태별 휴가 조회
+    List<Leave> findByEmployeeAndStatusOrderByStartDateDesc(Employee employee, LeaveStatus status);
     
-//     List<Leave> findByStatusAndStartDateGreaterThanEqual(Leave.LeaveStatus status, LocalDate date);
-// }
+    // 특정 직원의 휴가 종류별 조회
+    List<Leave> findByEmployeeAndTypeOrderByStartDateDesc(Employee employee, LeaveType type);
+    
+    // 상태별 휴가 조회 (관리자용)
+    List<Leave> findByStatusOrderByStartDateDesc(LeaveStatus status);
+    
+    // 기간별 휴가 조회
+    @Query("SELECT l FROM Leave l WHERE " +
+           "(l.startDate BETWEEN :startDate AND :endDate) OR " +
+           "(l.endDate BETWEEN :startDate AND :endDate) OR " +
+           "(l.startDate <= :startDate AND l.endDate >= :endDate) " +
+           "ORDER BY l.startDate DESC")
+    List<Leave> findByPeriod(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate
+    );
+    
+    // 특정 직원의 승인된 휴가 기간 조회
+    @Query("SELECT l FROM Leave l WHERE l.employee = :employee AND l.status = 'APPROVED' " +
+           "AND ((l.startDate BETWEEN :startDate AND :endDate) OR " +
+           "(l.endDate BETWEEN :startDate AND :endDate) OR " +
+           "(l.startDate <= :startDate AND l.endDate >= :endDate)) " +
+           "ORDER BY l.startDate DESC")
+    List<Leave> findApprovedLeavesInPeriod(
+        @Param("employee") Employee employee,
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate
+    );
+    
+    // 특정 직원의 연도별 휴가 사용 일수 계산
+    @Query("SELECT l FROM Leave l WHERE l.employee = :employee " +
+           "AND l.status = 'APPROVED' " +
+           "AND YEAR(l.startDate) = :year " +
+           "ORDER BY l.startDate DESC")
+    List<Leave> findApprovedLeavesByEmployeeAndYear(
+        @Param("employee") Employee employee,
+        @Param("year") int year
+    );
+}

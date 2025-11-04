@@ -114,13 +114,22 @@ public class EmployeeService {
                 predicates.add(criteriaBuilder.like(root.get("email"), "%" + email + "%"));
             }
             if (employeeId != null && !employeeId.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("id").as(String.class), "%" + employeeId + "%"));
+                try {
+                    // 숫자로 변환 가능하면 정확히 일치하는 것 검색
+                    Long id = Long.parseLong(employeeId);
+                    predicates.add(criteriaBuilder.equal(root.get("id"), id));
+                } catch (NumberFormatException e) {
+                    // 숫자가 아니면 문자열로 LIKE 검색 (시작 부분 일치만)
+                    predicates.add(criteriaBuilder.like(root.get("id").as(String.class), employeeId + "%"));
+                }
             }
             if (departmentName != null && !departmentName.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("department").get("departmentName"), departmentName));
+                // LIKE 검색으로 변경 (부분 일치)
+                predicates.add(criteriaBuilder.like(root.get("department").get("departmentName"), "%" + departmentName + "%"));
             }
             if (positionName != null && !positionName.trim().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("position").get("positionName"), positionName));
+                // LIKE 검색으로 변경 (부분 일치)
+                predicates.add(criteriaBuilder.like(root.get("position").get("positionName"), "%" + positionName + "%"));
             }
             
             return criteriaBuilder.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));

@@ -2,13 +2,14 @@
 
 -- 1. Attendance Table
 CREATE TABLE attendance (
-    attendanceId BIGINT(36) PRIMARY KEY,
+    attendanceId BIGINT AUTO_INCREMENT PRIMARY KEY,
     employeeId BIGINT NOT NULL,
     checkIn DATETIME NOT NULL,
     checkOut DATETIME,
-    type ENUM('일반', '지각', '조퇴', '결근', '재택') NOT NULL,
+    attendanceType ENUM('NORMAL', 'LATE', 'EARLY_LEAVE', 'ABSENT', 'REMOTE', 'OVERTIME', 'WEEKEND_WORK', 'HOLIDAY_WORK') NOT NULL,
     note VARCHAR(500),
     workHours DOUBLE,
+    overtimeHours DOUBLE DEFAULT 0.0 COMMENT '초과근무 시간',
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     createdBy VARCHAR(100),
@@ -18,13 +19,14 @@ CREATE TABLE attendance (
 
 -- 2. Leave Requests Table
 CREATE TABLE leaves (
-    leaveId VARCHAR(36) PRIMARY KEY,
+    leaveId BIGINT(36) BIGINT AUTO_INCREMENT PRIMARY KEY,
     employeeId BIGINT NOT NULL,
-    type ENUM('연차', '병가', '개인', '출산', '배우자출산', '조의') NOT NULL,
+    type ENUM('ANNUAL', 'SICK', 'MATERNITY', 'BEREAVEMENT') NOT NULL COMMENT '휴가 종류',
+    duration ENUM('FULL_DAY', 'HALF_DAY', 'QUARTER_DAY') NOT NULL COMMENT '휴가 단위 (연차/반차/반반차)',
     startDate DATE NOT NULL,
     endDate DATE NOT NULL,
     reason TEXT,
-    status ENUM('대기', '승인', '반려', '취소') NOT NULL DEFAULT '대기',
+    status ENUM('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
     approvedBy BIGINT,
     approvedAt DATE,
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

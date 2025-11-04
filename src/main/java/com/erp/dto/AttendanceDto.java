@@ -1,62 +1,79 @@
-// package com.erp.dto;
+package com.erp.dto;
 
-// import com.erp.entity.Attendance;
-// import lombok.Builder;
-// import lombok.Getter;
+import com.erp.entity.enums.AttendanceType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-// import java.time.LocalDateTime;
+import java.time.LocalDateTime;
 
-// public class AttendanceDto {
+public class AttendanceDto {
     
-//     @Getter
-//     @Builder
-//     public static class CheckInRequest {
-//         private String employeeId;
-//         private LocalDateTime checkInTime;
-//         private String note;
-//     }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Request {
+        private Long employeeId;
+        private LocalDateTime checkIn;
+        private LocalDateTime checkOut;
+        private AttendanceType attendanceType;
+        private String note;
+    }
     
-//     @Getter
-//     @Builder
-//     public static class CheckOutRequest {
-//         private String employeeId;
-//         private LocalDateTime checkOutTime;
-//         private String note;
-//     }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Response {
+        private Long id;
+        private Long employeeId;
+        private String employeeName;
+        private String departmentName;
+        private LocalDateTime checkIn;
+        private LocalDateTime checkOut;
+        private AttendanceType attendanceType;
+        private String note;
+        private Double workHours;
+        private Double overtimeHours;
+        private LocalDateTime createdAt;
+    }
     
-//     @Getter
-//     @Builder
-//     public static class Response {
-//         private String id;
-//         private String employeeName;
-//         private String departmentName;
-//         private LocalDateTime checkIn;
-//         private LocalDateTime checkOut;
-//         private Attendance.AttendanceType type;
-//         private String note;
-//         private Double workHours;
-        
-//         public static Response from(Attendance attendance) {
-//             return Response.builder()
-//                 .id(attendance.getId())
-//                 .employeeName(attendance.getEmployee().getName())
-//                 .departmentName(attendance.getEmployee().getDepartment().getName())
-//                 .checkIn(attendance.getCheckIn())
-//                 .checkOut(attendance.getCheckOut())
-//                 .type(attendance.getType())
-//                 .note(attendance.getNote())
-//                 .workHours(attendance.getWorkHours())
-//                 .build();
-//         }
-//     }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CheckInRequest {
+        private AttendanceType attendanceType;
+        private String note;
+    }
     
-//     @Getter
-//     @Builder
-//     public static class DailyStatusResponse {
-//         private String employeeName;
-//         private String departmentName;
-//         private Attendance.AttendanceType status;
-//         private LocalDateTime lastCheckIn;
-//         private Double currentWorkHours;
-//     }
-// }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CheckOutRequest {
+        private String note;
+    }
+    
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Statistics {
+        private Long employeeId;
+        private String employeeName;
+        private Integer totalDays;
+        private Integer normalDays;
+        private Integer lateDays;
+        private Integer earlyLeaveDays;
+        private Integer absentDays;
+        private Integer remoteDays;
+        private Integer overtimeDays;
+        private Integer weekendWorkDays;
+        private Integer holidayWorkDays;
+        private Double totalWorkHours;
+        private Double totalOvertimeHours;
+    }
+}

@@ -1,75 +1,107 @@
-// package com.erp.controller;
+package com.erp.controller;
 
-// import com.erp.dto.LeaveDto;
-// import com.erp.service.LeaveService;
-// import lombok.RequiredArgsConstructor;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.security.access.prepost.PreAuthorize;
-// import org.springframework.security.core.Authentication;
-// import org.springframework.web.bind.annotation.*;
+import com.erp.dto.LeaveDto;
+import com.erp.entity.enums.LeaveStatus;
+import com.erp.service.LeaveService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
-// import java.util.List;
+import java.util.List;
 
-// @RestController
-// @RequestMapping("/leaves")
-// @RequiredArgsConstructor
-// public class LeaveController {
+@RestController
+@RequestMapping("/leaves")
+@RequiredArgsConstructor
+public class LeaveController {
     
-//     private final LeaveService leaveService;
+    private final LeaveService leaveService;
     
-//     @PostMapping
-//     @PreAuthorize("isAuthenticated()")
-//     public ResponseEntity<ApiResponse<String>> requestLeave(
-//         @RequestBody LeaveDto.Request request,
-//         Authentication authentication) {
-//         request.setEmployeeId(authentication.getName());
-//         String leaveId = leaveService.requestLeave(request);
-//         return ResponseEntity.ok(ApiResponse.success(
-//             "Leave request submitted successfully", leaveId));
-//     }
+    /**
+     * 휴가 신청
+     */
+    @PostMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ApiResponse<LeaveDto.Response>> requestLeave(
+        @RequestBody LeaveDto.Request request) {
+        LeaveDto.Response response = leaveService.requestLeave(request);
+        return ResponseEntity.ok(ApiResponse.success("휴가 신청이 완료되었습니다.", response));
+    }
     
-//     @GetMapping("/{id}")
-//     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR') or " +
-//                   "@leaveService.getLeave(#id).employeeName == authentication.principal.username")
-//     public ResponseEntity<ApiResponse<LeaveDto.Response>> getLeave(
-//         @PathVariable String id) {
-//         return ResponseEntity.ok(ApiResponse.success(
-//             leaveService.getLeave(id)));
-//     }
+    /**
+     * 휴가 상세 조회
+     */
+    @GetMapping("/{leaveId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    public ResponseEntity<ApiResponse<LeaveDto.Response>> getLeave(@PathVariable Long leaveId) {
+        LeaveDto.Response response = leaveService.getLeave(leaveId);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
     
-//     @GetMapping("/employee/{employeeId}")
-//     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR') or #employeeId == authentication.principal.id")
-//     public ResponseEntity<ApiResponse<List<LeaveDto.Response>>> getEmployeeLeaves(
-//         @PathVariable String employeeId) {
-//         return ResponseEntity.ok(ApiResponse.success(
-//             leaveService.getEmployeeLeaves(employeeId)));
-//     }
+    /**
+     * 특정 직원의 휴가 목록 조회
+     */
+    @GetMapping("/employee/{employeeId}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    public ResponseEntity<ApiResponse<List<LeaveDto.Response>>> getLeavesByEmployee(
+        @PathVariable Long employeeId) {
+        List<LeaveDto.Response> responses = leaveService.getLeavesByEmployee(employeeId);
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
     
-//     @GetMapping("/pending")
-//     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
-//     public ResponseEntity<ApiResponse<List<LeaveDto.Response>>> getPendingLeaves() {
-//         return ResponseEntity.ok(ApiResponse.success(
-//             leaveService.getPendingLeaves()));
-//     }
+    /**
+     * 대기 중인 휴가 목록 조회 (관리자용)
+     */
+    @GetMapping("/pending")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<List<LeaveDto.Response>>> getPendingLeaves() {
+        List<LeaveDto.Response> responses = leaveService.getPendingLeaves();
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
     
-//     @PostMapping("/{id}/process")
-//     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
-//     public ResponseEntity<ApiResponse<Void>> processLeaveRequest(
-//         @PathVariable String id,
-//         @RequestBody LeaveDto.ApprovalRequest request,
-//         Authentication authentication) {
-//         request.setApproverId(authentication.getName());
-//         leaveService.processLeaveRequest(id, request);
-//         return ResponseEntity.ok(ApiResponse.success(
-//             request.isApproved() ? "Leave request approved" : "Leave request rejected"));
-//     }
+    /**
+     * 상태별 휴가 목록 조회 (관리자용)
+     */
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<List<LeaveDto.Response>>> getLeavesByStatus(
+        @PathVariable LeaveStatus status) {
+        List<LeaveDto.Response> responses = leaveService.getLeavesByStatus(status);
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
     
-//     @PostMapping("/{id}/cancel")
-//     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR') or " +
-//                   "@leaveService.getLeave(#id).employeeName == authentication.principal.username")
-//     public ResponseEntity<ApiResponse<Void>> cancelLeave(
-//         @PathVariable String id) {
-//         leaveService.cancelLeave(id);
-//         return ResponseEntity.ok(ApiResponse.success("Leave request cancelled"));
-//     }
-// }
+    /**
+     * 휴가 승인/반려 처리
+     */
+    @PutMapping("/{leaveId}/process")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<LeaveDto.Response>> processLeave(
+        @PathVariable Long leaveId,
+        @RequestBody LeaveDto.ApprovalRequest request) {
+        LeaveDto.Response response = leaveService.processLeave(leaveId, request);
+        String message = request.getApproved() ? "휴가가 승인되었습니다." : "휴가가 반려되었습니다.";
+        return ResponseEntity.ok(ApiResponse.success(message, response));
+    }
+    
+    /**
+     * 휴가 취소
+     */
+    @PutMapping("/{leaveId}/cancel")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ApiResponse<LeaveDto.Response>> cancelLeave(@PathVariable Long leaveId) {
+        LeaveDto.Response response = leaveService.cancelLeave(leaveId);
+        return ResponseEntity.ok(ApiResponse.success("휴가가 취소되었습니다.", response));
+    }
+    
+    /**
+     * 특정 직원의 연도별 휴가 통계
+     */
+    @GetMapping("/employee/{employeeId}/statistics")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    public ResponseEntity<ApiResponse<LeaveDto.Statistics>> getLeaveStatistics(
+        @PathVariable Long employeeId,
+        @RequestParam int year) {
+        LeaveDto.Statistics statistics = leaveService.getLeaveStatistics(employeeId, year);
+        return ResponseEntity.ok(ApiResponse.success(statistics));
+    }
+}
