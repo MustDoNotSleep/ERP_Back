@@ -50,8 +50,9 @@ spring:
         max-page-size: 1000
   
   flyway:
-    enabled: false #true
+    enabled: true
     baseline-on-migrate: true
+    baseline-version: 3.3 // 각자 상황에 맞게 변경
     
 server:
   port: 8080
