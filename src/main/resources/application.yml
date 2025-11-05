@@ -52,7 +52,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
-    baseline-version: 3.3 // 각자 상황에 맞게 변경
+    baseline-version: "3.3" # V3.3까지 수동 실행했으므로
     
 server:
   port: 8080
