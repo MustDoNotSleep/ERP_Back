@@ -51,8 +51,44 @@ public class LeaveService {
         List<Leave> overlappingLeaves = leaveRepository.findApprovedLeavesInPeriod(
             employee, request.getStartDate(), request.getEndDate());
         
+        log.info("🔍 휴가 중복 체크 - 직원: {}, 기간: {} ~ {}, 기존 휴가 수: {}", 
+            employee.getName(), request.getStartDate(), request.getEndDate(), overlappingLeaves.size());
+        
+        // 중복 체크: 같은 날짜에 오전/오후가 다르면 허용
         if (!overlappingLeaves.isEmpty()) {
-            throw new IllegalStateException("해당 기간에 이미 승인된 휴가가 있습니다.");
+            // 신청하려는 휴가가 반차/반반차인 경우
+            if (request.getDuration().isHalfDay() || request.getDuration().isQuarterDay()) {
+                log.info("⏰ 반차/반반차 신청 - 시간대: {}", request.getDuration().isAM() ? "오전" : "오후");
+                
+                // 같은 날짜에 같은 시간대(오전/오후) 휴가가 있는지 체크
+                boolean hasConflict = overlappingLeaves.stream()
+                    .anyMatch(existing -> {
+                        // 종일 휴가가 있으면 무조건 충돌
+                        if (existing.getDuration() == LeaveDuration.FULL_DAY) {
+                            log.warn("❌ 충돌: 같은 날에 종일 휴가가 이미 있음 - {}", existing.getType().getKoreanName());
+                            return true;
+                        }
+                        // 같은 시간대(AM/PM)인 경우만 충돌
+                        boolean sameTimeSlot = (request.getDuration().isAM() && existing.getDuration().isAM()) ||
+                                              (request.getDuration().isPM() && existing.getDuration().isPM());
+                        if (sameTimeSlot) {
+                            log.warn("❌ 충돌: 같은 시간대에 이미 휴가가 있음 - {} ({})", 
+                                existing.getType().getKoreanName(), 
+                                existing.getDuration().isAM() ? "오전" : "오후");
+                        }
+                        return sameTimeSlot;
+                    });
+                
+                if (hasConflict) {
+                    throw new IllegalStateException("해당 시간대에 이미 승인된 휴가가 있습니다.");
+                } else {
+                    log.info("✅ 중복 없음: 다른 시간대이므로 신청 가능");
+                }
+            } else {
+                // 종일 휴가를 신청하는 경우 어떤 휴가든 있으면 충돌
+                log.warn("❌ 충돌: 종일 휴가 신청인데 해당 기간에 이미 휴가가 있음");
+                throw new IllegalStateException("해당 기간에 이미 승인된 휴가가 있습니다.");
+            }
         }
         
         // 실제 사용 일수 계산
@@ -60,6 +96,15 @@ public class LeaveService {
         
         log.info("휴가 일수 계산 - 시작일: {}, 종료일: {}, duration: {}, 계산된 일수: {}일",
             request.getStartDate(), request.getEndDate(), request.getDuration().getKoreanName(), leaveDays);
+        
+        // 휴가 종류별 법정 일수 제한 검증
+        if (!request.getType().isValidDays(leaveDays)) {
+            throw new IllegalStateException(
+                String.format("%s는 %s만 신청 가능합니다. (신청: %.1f일)",
+                    request.getType().getKoreanName(),
+                    request.getType().getDaysRangeDescription(),
+                    leaveDays));
+        }
         
         // 연차인 경우 잔여 연차 확인
         if (request.getType().isDeductFromAnnual()) {
@@ -373,17 +418,17 @@ public class LeaveService {
     /**
      * 휴가 일수 계산
      * - FULL_DAY: 날짜 차이만큼 (예: 3일 연차 = 3.0일)
-     * - HALF_DAY: 0.5일 (반차는 1개만 가능)
-     * - QUARTER_DAY: 0.25일 (반반차는 1개만 가능)
+     * - HALF_DAY_AM/PM: 0.5일 (오전/오후 반차)
+     * - QUARTER_DAY_AM/PM: 0.25일 (오전/오후 반반차)
      */
     private double calculateLeaveDays(LocalDate startDate, LocalDate endDate, LeaveDuration duration) {
         long daysBetween = ChronoUnit.DAYS.between(startDate, endDate) + 1;
         
         // duration에 따라 실제 사용 일수 계산
-        if (duration == LeaveDuration.HALF_DAY) {
-            return 0.5;  // 반차는 무조건 0.5일
-        } else if (duration == LeaveDuration.QUARTER_DAY) {
-            return 0.25; // 반반차는 무조건 0.25일
+        if (duration.isHalfDay()) {
+            return 0.5;  // 오전/오후 반차 모두 0.5일
+        } else if (duration.isQuarterDay()) {
+            return 0.25; // 오전/오후 반반차 모두 0.25일
         } else {
             // FULL_DAY인 경우 날짜 차이만큼 (주말 포함)
             return daysBetween;
@@ -417,6 +462,10 @@ public class LeaveService {
             .approvedByName(leave.getApprovedBy() != null ? leave.getApprovedBy().getName() : null)
             .approvedAt(leave.getApprovedAt())
             .createdAt(leave.getCreatedAt() != null ? leave.getCreatedAt().toLocalDate() : null)
+            // 휴가 종류별 법정 일수 정보 추가
+            .minDays(leave.getType().getMinDays())
+            .maxDays(leave.getType().getMaxDays())
+            .daysRangeDescription(leave.getType().getDaysRangeDescription())
             .build();
     }
 }

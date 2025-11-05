@@ -43,6 +43,11 @@ public class LeaveDto {
         private String approvedByName;
         private LocalDate approvedAt;
         private LocalDate createdAt;
+        
+        // 휴가 종류별 법정 일수 정보
+        private Integer minDays;              // 최소 일수
+        private Integer maxDays;              // 최대 일수
+        private String daysRangeDescription;  // "정확히 90일", "1-5일", "제한없음" 등
     }
     
     @Data

@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LeaveDuration {
-    FULL_DAY("연차"),           // 1일 (8시간)
-    HALF_DAY("반차"),           // 0.5일 (4시간)
-    QUARTER_DAY("반반차");      // 0.25일 (2시간)
+    FULL_DAY("연차"),                  // 1일 (8시간)
+    HALF_DAY_AM("오전반차"),           // 0.5일 (오전 4시간)
+    HALF_DAY_PM("오후반차"),           // 0.5일 (오후 4시간)
+    QUARTER_DAY_AM("오전반반차"),      // 0.25일 (오전 2시간)
+    QUARTER_DAY_PM("오후반반차");      // 0.25일 (오후 2시간)
 
     private final String koreanName;
 
@@ -45,12 +47,33 @@ public enum LeaveDuration {
         switch (this) {
             case FULL_DAY:
                 return 1.0;
-            case HALF_DAY:
+            case HALF_DAY_AM:
+            case HALF_DAY_PM:
                 return 0.5;
-            case QUARTER_DAY:
+            case QUARTER_DAY_AM:
+            case QUARTER_DAY_PM:
                 return 0.25;
             default:
                 return 0.0;
         }
     }
+    
+    // 반차/반반차 여부
+    public boolean isHalfDay() {
+        return this == HALF_DAY_AM || this == HALF_DAY_PM;
+    }
+    
+    public boolean isQuarterDay() {
+        return this == QUARTER_DAY_AM || this == QUARTER_DAY_PM;
+    }
+    
+    // 오전/오후 구분
+    public boolean isAM() {
+        return this == HALF_DAY_AM || this == QUARTER_DAY_AM;
+    }
+    
+    public boolean isPM() {
+        return this == HALF_DAY_PM || this == QUARTER_DAY_PM;
+    }
 }
+
