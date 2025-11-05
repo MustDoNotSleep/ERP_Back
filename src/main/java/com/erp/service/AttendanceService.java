@@ -27,6 +27,16 @@ public class AttendanceService {
     
     private final AttendanceRepository attendanceRepository;
     private final EmployeeRepository employeeRepository;
+
+        /**
+         * 오늘 출근 여부 확인 (프론트 토큰/세션용)
+         */
+        public boolean isCheckedInToday() {
+            String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+            Employee employee = employeeRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다."));
+            return attendanceRepository.findTodayAttendance(employee).isPresent();
+        }
     
     // 근무 시간 기준 설정
     private static final LocalTime WORK_START_TIME = LocalTime.of(9, 0);  // 출근 시간 09:00
@@ -317,6 +327,27 @@ public class AttendanceService {
             .totalWorkHours(totalWorkHours)
             .totalOvertimeHours(totalOvertimeHours)
             .build();
+    }
+    
+    /**
+     * 오늘 출퇴근 기록 반환 (checkIn, checkOut)
+     */
+    public AttendanceRecord getTodayAttendance() {
+        String email = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        Employee employee = employeeRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다."));
+        return attendanceRepository.findTodayAttendance(employee)
+            .map(a -> new AttendanceRecord(a.getCheckIn(), a.getCheckOut()))
+            .orElse(new AttendanceRecord(null, null));
+    }
+
+    public static class AttendanceRecord {
+        public java.time.LocalDateTime checkInTime;
+        public java.time.LocalDateTime checkOutTime;
+        public AttendanceRecord(java.time.LocalDateTime checkInTime, java.time.LocalDateTime checkOutTime) {
+            this.checkInTime = checkInTime;
+            this.checkOutTime = checkOutTime;
+        }
     }
     
     /**

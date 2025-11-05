@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -17,6 +18,17 @@ import java.util.List;
 public class AttendanceController {
     
     private final AttendanceService attendanceService;
+
+        /**
+         * 오늘 출퇴근 기록 반환 (프론트 토큰/세션용)
+         */
+        @GetMapping("/today")
+        @PreAuthorize("hasRole('ROLE_USER')")
+        public ResponseEntity<ApiResponse<TodayAttendanceResponse>> getTodayAttendance() {
+            var record = attendanceService.getTodayAttendance();
+            var today = new TodayAttendanceResponse(record.checkInTime, record.checkOutTime);
+            return ResponseEntity.ok(ApiResponse.success("오늘 출퇴근 기록", today));
+        }
     
     /**
      * 출근 처리
@@ -133,5 +145,15 @@ public class AttendanceController {
         @RequestParam int month) {
         AttendanceDto.Statistics statistics = attendanceService.getAttendanceStatistics(employeeId, year, month);
         return ResponseEntity.ok(ApiResponse.success(statistics));
+    }
+    
+    // 오늘 출퇴근 기록 응답 DTO
+    public static class TodayAttendanceResponse {
+        public LocalDateTime checkInTime;
+        public LocalDateTime checkOutTime;
+        public TodayAttendanceResponse(LocalDateTime checkInTime, LocalDateTime checkOutTime) {
+            this.checkInTime = checkInTime;
+            this.checkOutTime = checkOutTime;
+        }
     }
 }
