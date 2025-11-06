@@ -26,7 +26,12 @@ public class DocumentApplicationService {
     private final EmployeeRepository employeeRepository;
 
     public Page<DocumentApplicationDto.Response> getAllApplications(Pageable pageable) {
-        return documentApplicationRepository.findAll(pageable)
+        // 🚨 (수정) N+1 문제 해결을 위해 JOIN FETCH 쿼리가 필요합니다.
+        // (Repository에 'findAllWithEmployee' 메소드 추가가 필요합니다 - 이전 답변 참고)
+        
+        // return documentApplicationRepository.findAll(pageable) // 👈 (수정 전)
+        //         .map(DocumentApplicationDto.Response::from);    // 👈 (수정 전)
+        return documentApplicationRepository.findAllWithEmployee(pageable) // 👈 (수정 후)
                 .map(DocumentApplicationDto.Response::from);
     }
 
@@ -34,13 +39,24 @@ public class DocumentApplicationService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new EntityNotFoundException("Employee", employeeId.toString()));
         
-        return documentApplicationRepository.findByEmployee(employee).stream()
+        // 🚨 (수정) N+1 문제 해결을 위해 JOIN FETCH 쿼리가 필요합니다.
+        // (Repository에 'findByEmployeeWithEmployee' 메소드 추가가 필요합니다)
+        
+        // return documentApplicationRepository.findByEmployee(employee).stream() // 👈 (수정 전)
+        //         .map(DocumentApplicationDto.Response::from)                   // 👈 (수정 전)
+        //         .collect(Collectors.toList());                                // 👈 (수정 전)
+        return documentApplicationRepository.findByEmployeeWithEmployee(employee).stream() // 👈 (수정 후)
                 .map(DocumentApplicationDto.Response::from)
                 .collect(Collectors.toList());
     }
 
     public DocumentApplicationDto.Response getApplicationById(Long id) {
-        DocumentApplication application = documentApplicationRepository.findById(id)
+        // 🚨 (수정) N+1 문제 해결을 위해 JOIN FETCH 쿼리가 필요합니다.
+        // (Repository에 'findByIdWithEmployee' 메소드 추가가 필요합니다)
+        
+        // DocumentApplication application = documentApplicationRepository.findById(id) // 👈 (수정 전)
+        //         .orElseThrow(() -> new EntityNotFoundException("DocumentApplication", id.toString())); // 👈 (수정 전)
+        DocumentApplication application = documentApplicationRepository.findByIdWithEmployee(id) // 👈 (수정 후)
                 .orElseThrow(() -> new EntityNotFoundException("DocumentApplication", id.toString()));
         return DocumentApplicationDto.Response.from(application);
     }
@@ -56,6 +72,7 @@ public class DocumentApplicationService {
                 .purpose(request.getPurpose())
                 .language(request.getLanguage())
                 .reason(request.getReason())
+                .copies(request.getCopies()) // 👈 (수정) 주석 해제 및 DTO의 'copies' 필드 반영
                 .documentStatus(DocumentStatus.PENDING)
                 .applicationDate(LocalDateTime.now())
                 .build();
@@ -66,14 +83,22 @@ public class DocumentApplicationService {
 
     @Transactional
     public DocumentApplicationDto.Response approveOrReject(Long id, DocumentApplicationDto.ApprovalRequest request) {
-        DocumentApplication application = documentApplicationRepository.findById(id)
+        // 🚨 (수정) N+1 방지를 위해 JOIN FETCH 사용
+        // DocumentApplication application = documentApplicationRepository.findById(id) // 👈 (수정 전)
+        //         .orElseThrow(() -> new EntityNotFoundException("DocumentApplication", id.toString())); // 👈 (수정 전)
+        DocumentApplication application = documentApplicationRepository.findByIdWithEmployee(id) // 👈 (수정 후)
                 .orElseThrow(() -> new EntityNotFoundException("DocumentApplication", id.toString()));
 
         Employee processor = employeeRepository.findById(request.getProcessorId())
                 .orElseThrow(() -> new EntityNotFoundException("Employee", request.getProcessorId().toString()));
 
-        documentApplicationRepository.delete(application);
+        // --- 🚨 (수정) 업데이트 방식 변경 ---
+        // 'delete' 후 'save'하는 비효율적인 방식 대신
+        // 엔티티의 비즈니스 메소드를 호출하여 'Dirty Checking'으로 자동 UPDATE 되도록 변경
         
+        // documentApplicationRepository.delete(application); // 👈 (수정 전)
+        
+        /* (수정 전: Builder로 새 객체를 만드는 방식)
         DocumentApplication updated = DocumentApplication.builder()
                 .id(id)
                 .employee(application.getEmployee())
@@ -88,9 +113,19 @@ public class DocumentApplicationService {
                 .rejectionReason(request.getRejectionReason())
                 .issuedFiles(request.getIssuedFiles())
                 .build();
-
         DocumentApplication saved = documentApplicationRepository.save(updated);
-        return DocumentApplicationDto.Response.from(saved);
+        */
+        
+        // 👈 (수정 후) 엔티티에 추가한 'processApplication' 메소드 호출
+        application.processApplication(
+            processor, 
+            request.isApproved(), 
+            request.getRejectionReason(), 
+            request.getIssuedFiles()
+        );
+
+        // return DocumentApplicationDto.Response.from(saved); // 👈 (수정 전)
+        return DocumentApplicationDto.Response.from(application); // 👈 (수정 후)
     }
 
     @Transactional
