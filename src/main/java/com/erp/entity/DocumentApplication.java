@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "DocumentApplications")
+@Table(name = "document_applications")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -22,7 +22,7 @@ public class DocumentApplication extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "documentId")
-    private Long id;
+    private Long documentId;
     
     // 2. employeeId (외래 키: 신청한 직원)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,11 +40,12 @@ public class DocumentApplication extends BaseEntity{
 
     // 5. language (Enum 적용)
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    //@Column(nullable = false)
     private DocumentLanguage language;
     
     // 6. reason (TEXT 타입이므로 String으로 매핑)
-    @Lob 
+    
+    @Column(columnDefinition = "TEXT")
     private String reason;
 
     // 7. status (Enum 적용)
@@ -66,6 +67,10 @@ public class DocumentApplication extends BaseEntity{
     // 11. rejectionReason (반려 사유)
     @Column(length = 500)
     private String rejectionReason;
+
+    // 12. copies (발급 부수)
+   // @Column(nullable = false)
+    private Integer copies;
     
     // 12. issuedFiles (발급된 파일 경로/이름 목록)
     @ElementCollection
@@ -80,4 +85,20 @@ public class DocumentApplication extends BaseEntity{
     /*
      * 비즈니스 로직 추가 영역 (예: 상태 업데이트)
      */
+     
+    // -----------------------------------------------------------------
+    // 👇 (수정 사항) 승인/반려 처리를 위한 비즈니스 로직 메소드 '추가'
+    // -----------------------------------------------------------------
+    public void processApplication(
+            Employee processor, 
+            boolean isApproved, 
+            String rejectionReason, 
+            List<String> issuedFiles
+    ) {
+        this.processor = processor;
+        this.processedAt = LocalDateTime.now();
+        this.documentStatus = isApproved ? DocumentStatus.APPROVED : DocumentStatus.REJECTED;
+        this.rejectionReason = isApproved ? null : rejectionReason; // 승인 시 반려 사유는 null 처리
+        this.issuedFiles = issuedFiles;
+    }
 }
