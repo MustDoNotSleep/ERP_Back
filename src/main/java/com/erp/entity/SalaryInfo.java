@@ -32,6 +32,10 @@ public class SalaryInfo {
     @Column(length = 50)
     private String accountNumber;
 
+    // 5. 월 기본급
+    @Column(name = "monthlyBaseSalary", nullable = false)
+    private java.math.BigDecimal monthlyBaseSalary;
+
     /*
      * 비즈니스 로직 추가 영역 (예: 급여 정보 업데이트 메서드)
      */
