@@ -1,6 +1,7 @@
 package com.erp.dto;
 
 import com.erp.entity.Salary;
+import com.erp.entity.enums.SalaryStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -25,7 +26,7 @@ public class SalaryDto {
 		private BigDecimal societyFee;
 		private BigDecimal advancePayment;
 		private BigDecimal otherDeductions;
-		private Salary.SalaryStatus salaryStatus;
+		private SalaryStatus salaryStatus;
 	}
 
 	@Getter
@@ -51,7 +52,7 @@ public class SalaryDto {
 		private BigDecimal otherDeductions;
 		private BigDecimal totalSalary;
 		private BigDecimal netSalary;
-		private Salary.SalaryStatus salaryStatus;
+		private SalaryStatus salaryStatus;
 
 		public static Response from(Salary salary) {
 			return Response.builder()

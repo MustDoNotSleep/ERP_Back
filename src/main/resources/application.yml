@@ -51,9 +51,9 @@ spring:
   
   flyway:
     enabled: true
-    baseline-on-migrate: true
-    baseline-version: "3.3" # V3.3까지 수동 실행했으므로
-    
+    # baseline-on-migrate: true
+    # baseline-version: "3.3" # V3.3까지 수동 실행했으므로
+      
 server:
   port: 8080
   servlet:

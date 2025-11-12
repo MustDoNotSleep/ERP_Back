@@ -1,5 +1,6 @@
 package com.erp.entity;
 
+import com.erp.entity.enums.SalaryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -50,13 +51,8 @@ public class Salary extends BaseEntity {
     @Column(name = "net_salary")
     private BigDecimal netSalary; // 실수령액
     
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SalaryStatus salaryStatus; // 급여 상태
-    
-    public enum SalaryStatus {
-        DRAFT, CONFIRMED, PAID // 초안, 확정, 지급됨
-    }
     
     // Business methods
         // Setter methods for SalaryService updateSalary

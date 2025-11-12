@@ -3,6 +3,7 @@ package com.erp.service;
 import com.erp.dto.SalaryDto;
 import com.erp.entity.Employee;
 import com.erp.entity.Salary;
+import com.erp.entity.enums.SalaryStatus;
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.SalaryRepository;
 import com.erp.repository.SalaryInfoRepository;
@@ -53,7 +54,7 @@ public class SalaryService {
 			.societyFee(request.getSocietyFee())
 			.advancePayment(request.getAdvancePayment())
 			.otherDeductions(request.getOtherDeductions())
-			.salaryStatus(request.getSalaryStatus() != null ? request.getSalaryStatus() : Salary.SalaryStatus.DRAFT)
+			.salaryStatus(request.getSalaryStatus() != null ? request.getSalaryStatus() : SalaryStatus.DRAFT)
 			.build();
 		salary.calculateTotal();
 		salary.calculateNetSalary();
@@ -101,7 +102,7 @@ public class SalaryService {
 	}
 
 	public List<SalaryDto.Response> getMonthlySalaries(YearMonth yearMonth) {
-		return salaryRepository.findByPaymentDateAndSalaryStatus(yearMonth, Salary.SalaryStatus.PAID)
+		return salaryRepository.findByPaymentDateAndSalaryStatus(yearMonth, SalaryStatus.PAID)
 			.stream()
 			.map(SalaryDto.Response::from)
 			.collect(Collectors.toList());
@@ -111,7 +112,7 @@ public class SalaryService {
 	public void confirmSalary(Long id) {
 		Salary salary = salaryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("급여 내역을 찾을 수 없습니다."));
-		if (salary.getSalaryStatus() != Salary.SalaryStatus.DRAFT) {
+		if (salary.getSalaryStatus() != SalaryStatus.DRAFT) {
 			throw new IllegalStateException("급여가 DRAFT 상태가 아닙니다.");
 		}
 		salary.confirm();
@@ -121,7 +122,7 @@ public class SalaryService {
 	public void markAsPaid(Long id) {
 		Salary salary = salaryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("급여 내역을 찾을 수 없습니다."));
-		if (salary.getSalaryStatus() != Salary.SalaryStatus.CONFIRMED) {
+		if (salary.getSalaryStatus() != SalaryStatus.CONFIRMED) {
 			throw new IllegalStateException("급여가 CONFIRMED 상태가 아닙니다.");
 		}
 		salary.markAsPaid();

@@ -1,60 +1,81 @@
--- V1.0__init_schema.sql
+-- V1.0: 초기 스키마 생성 (Department, Position, Employee, MilitaryServiceInfo, Certificate)
 
--- 1. Department Table
+-- 1. departments 테이블
 CREATE TABLE departments (
     departmentId BIGINT AUTO_INCREMENT PRIMARY KEY,
-    departmentName VARCHAR(100) NOT NULL,
-    teamName VARCHAR(100) NOT NULL,
-    manage BOOLEAN NOT NULL DEFAULT FALSE,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100)
-);
+    departmentName VARCHAR(255) NOT NULL,
+    teamName VARCHAR(255),
+    manage BOOLEAN DEFAULT FALSE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. Position Table
+-- 2. positions 테이블
 CREATE TABLE positions (
     positionId BIGINT AUTO_INCREMENT PRIMARY KEY,
-    positionName VARCHAR(100) NOT NULL,
-    positionLevel INT NOT NULL,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100)
-);
+    positionName VARCHAR(255) NOT NULL,
+    positionLevel INT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. Employee Table
+-- 3. employees 테이블
 CREATE TABLE employees (
     employeeId BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    nameEng VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,  -- BCrypt hash
-    phone VARCHAR(20),
+    name VARCHAR(255) NOT NULL,
+    nameEng VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rrn VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    address VARCHAR(500),
+    addressDetails VARCHAR(500),
+    phone VARCHAR(50),
     birthDate DATE,
-    hireDate DATE NOT NULL,
-    rrn VARCHAR(255) NOT NULL,  -- Encrypted
-    address VARCHAR(255),
-    addressDetails VARCHAR(255),
-    familyCertificate VARCHAR(255),
-    employmentType ENUM('정규직', '계약직', '인턴', '알바') NOT NULL,
-    internalNumber VARCHAR(20),
-    nationality VARCHAR(20) NOT NULL DEFAULT '내국인',
+    hireDate DATE,
     quitDate DATE,
+    internalNumber VARCHAR(50),
+    familyCertificate VARCHAR(500),
     departmentId BIGINT,
     positionId BIGINT,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100),
+    employmentType VARCHAR(50) NOT NULL,
+    nationality VARCHAR(50) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (departmentId) REFERENCES departments(departmentId),
     FOREIGN KEY (positionId) REFERENCES positions(positionId)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 4. Indexes
+-- 4. MilitaryServiceInfo 테이블
+CREATE TABLE MilitaryServiceInfo (
+    militaryInfoId BIGINT AUTO_INCREMENT PRIMARY KEY,
+    employeeId BIGINT NOT NULL,
+    militaryStatus VARCHAR(50) NOT NULL,
+    militaryBranch VARCHAR(50),
+    militaryRank VARCHAR(50),
+    militarySpecialty VARCHAR(50),
+    exemptionReason VARCHAR(50),
+    serviceStartDate DATE,
+    serviceEndDate DATE,
+    FOREIGN KEY (employeeId) REFERENCES employees(employeeId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. certificates 테이블
+CREATE TABLE certificates (
+    certificateId BIGINT AUTO_INCREMENT PRIMARY KEY,
+    employeeId BIGINT,
+    certificateName VARCHAR(255),
+    issuingAuthority VARCHAR(255),
+    expirationDate DATE,
+    acquisitionDate DATE,
+    score VARCHAR(50),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (employeeId) REFERENCES employees(employeeId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 인덱스 생성
 CREATE INDEX idx_employee_email ON employees(email);
-CREATE INDEX idx_employee_name ON employees(name);
 CREATE INDEX idx_employee_department ON employees(departmentId);
 CREATE INDEX idx_employee_position ON employees(positionId);
-CREATE INDEX idx_department_name ON departments(departmentName);
-CREATE INDEX idx_position_level ON positions(positionLevel);
+CREATE INDEX idx_military_employee ON MilitaryServiceInfo(employeeId);
+CREATE INDEX idx_certificate_employee ON certificates(employeeId);

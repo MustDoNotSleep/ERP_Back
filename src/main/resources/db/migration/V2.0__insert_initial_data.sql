@@ -270,7 +270,7 @@ INSERT INTO employees (
  '',
  '',
  '',
- NULL,
+ '2013-01-09',
  NULL,
  '',
  '정규직',
