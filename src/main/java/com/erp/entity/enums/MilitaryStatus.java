@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 // 병역 상태 (militaryStatus)
 public enum MilitaryStatus {
+    HYEON_YEOK("현역"),
     GUN_PIL("군필"),
     MI_PIL("미필"),
     MYEON_JE("면제"),

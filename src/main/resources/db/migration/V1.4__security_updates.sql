@@ -38,7 +38,7 @@ CREATE TABLE Courses (
     endDate DATE,
     objective TEXT,
     creator BIGINT NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    status VARCHAR(50) NOT NULL DEFAULT '대기',
     approver BIGINT,
     processedDate TIMESTAMP,
     comment VARCHAR(500),

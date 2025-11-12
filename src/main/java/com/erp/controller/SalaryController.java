@@ -39,8 +39,9 @@ public class SalaryController {
 
     @GetMapping("/month/{yearMonth}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
-    public ResponseEntity<List<SalaryDto.Response>> getMonthlySalaries(@PathVariable YearMonth yearMonth) {
-        List<SalaryDto.Response> responses = salaryService.getMonthlySalaries(yearMonth);
+    public ResponseEntity<List<SalaryDto.Response>> getMonthlySalaries(@PathVariable String yearMonth) {
+        YearMonth parsedYearMonth = YearMonth.parse(yearMonth);
+        List<SalaryDto.Response> responses = salaryService.getMonthlySalaries(parsedYearMonth);
         return ResponseEntity.ok(responses);
     }
 

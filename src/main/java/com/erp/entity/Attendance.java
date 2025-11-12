@@ -29,7 +29,6 @@ public class Attendance extends BaseEntity {
     @Column(name = "checkOut")
     private LocalDateTime checkOut;
     
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AttendanceType attendanceType;
     

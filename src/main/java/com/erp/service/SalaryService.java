@@ -102,7 +102,7 @@ public class SalaryService {
 	}
 
 	public List<SalaryDto.Response> getMonthlySalaries(YearMonth yearMonth) {
-		return salaryRepository.findByPaymentDateAndSalaryStatus(yearMonth, SalaryStatus.PAID)
+		return salaryRepository.findByPaymentDateWithEmployee(yearMonth)
 			.stream()
 			.map(SalaryDto.Response::from)
 			.collect(Collectors.toList());

@@ -24,7 +24,6 @@ public class SalaryInfo {
     private Employee employee; 
 
     // 3. bankName (Enum 적용: 은행 이름)
-    @Enumerated(EnumType.STRING)
     @Column(name = "bankName")
     private BankName bankName;
 

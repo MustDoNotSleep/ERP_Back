@@ -1,7 +1,9 @@
 package com.erp.dto;
 
+import com.erp.entity.Employee;
 import com.erp.entity.Salary;
 import com.erp.entity.enums.SalaryStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,7 +15,10 @@ public class SalaryDto {
 	@Builder
 	public static class Request {
 		private Long employeeId;
+		
+		@JsonFormat(pattern = "yyyy-MM")
 		private YearMonth paymentDate;
+		
 		private BigDecimal baseSalary;
 		private BigDecimal overtimeAllowance;
 		private BigDecimal nightAllowance;
@@ -37,7 +42,11 @@ public class SalaryDto {
 		private String employeeName;
 		private String departmentName;
 		private String positionName;
+		private String teamName;
+		
+		@JsonFormat(pattern = "yyyy-MM")
 		private YearMonth paymentDate;
+		
 		private BigDecimal baseSalary;
 		private BigDecimal overtimeAllowance;
 		private BigDecimal nightAllowance;
@@ -55,12 +64,14 @@ public class SalaryDto {
 		private SalaryStatus salaryStatus;
 
 		public static Response from(Salary salary) {
+			Employee employee = salary.getEmployee();
 			return Response.builder()
 				.id(salary.getId())
-				.employeeId(salary.getEmployee().getId())
-				.employeeName(salary.getEmployee().getName())
-				.departmentName(salary.getEmployee().getDepartment() != null ? salary.getEmployee().getDepartment().getDepartmentName() : null)
-				.positionName(salary.getEmployee().getPosition() != null ? salary.getEmployee().getPosition().getPositionName() : null)
+				.employeeId(employee != null ? employee.getId() : null)
+				.employeeName(employee != null ? employee.getName() : null)
+				.departmentName(employee != null && employee.getDepartment() != null ? employee.getDepartment().getDepartmentName() : null)
+				.positionName(employee != null && employee.getPosition() != null ? employee.getPosition().getPositionName() : null)
+				.teamName(employee != null && employee.getDepartment() != null ? employee.getDepartment().getTeamName() : null)
 				.paymentDate(salary.getPaymentDate())
 				.baseSalary(salary.getBaseSalary())
 				.overtimeAllowance(salary.getOvertimeAllowance())

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LeaveDuration {
-    FULL_DAY("연차"),                  // 1일 (8시간)
+    FULL_DAY("종일"),                  // 1일 (8시간)
     HALF_DAY_AM("오전반차"),           // 0.5일 (오전 4시간)
     HALF_DAY_PM("오후반차"),           // 0.5일 (오후 4시간)
     QUARTER_DAY_AM("오전반반차"),      // 0.25일 (오전 2시간)

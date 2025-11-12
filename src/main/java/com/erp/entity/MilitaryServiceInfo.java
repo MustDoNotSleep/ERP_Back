@@ -29,24 +29,19 @@ public class MilitaryServiceInfo {
     private Employee employee; 
 
     // 3. militaryStatus (현역, 미복, 현역;면제받았음)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MilitaryStatus militaryStatus;
 
     // 4. militaryBranch (육군, 해군, 공군, 해병대)
-    @Enumerated(EnumType.STRING)
     private MilitaryBranch militaryBranch;
 
     // 5. militaryRank (병장, 상병, 일병, 하사)
-    @Enumerated(EnumType.STRING)
     private MilitaryRank militaryRank;
 
     // 6. militarySpecialty (보병, 포병, 통신, 공병)
-    @Enumerated(EnumType.STRING)
     private MilitarySpecialty militarySpecialty;
 
     // 7. exemptionReason (복무대기, 생계곤란, 질병)
-    @Enumerated(EnumType.STRING)
     private ExemptionReason exemptionReason;
 
     // 8. serviceStartDate

@@ -25,11 +25,9 @@ public class Leave extends BaseEntity {
     @JoinColumn(name = "employeeId")
     private Employee employee;
     
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LeaveType type;
     
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LeaveDuration duration; // 연차, 반차, 반반차
     
@@ -44,7 +42,6 @@ public class Leave extends BaseEntity {
     
     private String reason;
     
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LeaveStatus status;
     

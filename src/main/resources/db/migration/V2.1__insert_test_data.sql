@@ -38,7 +38,7 @@ INSERT INTO CourseApplications (applicationId, applicationDate, status, employee
 INSERT INTO documentApplications (documentId, documentType, purpose, applicationDate, documentStatus, language, employeeId, createdAt, updatedAt) VALUES
 (1, '재직증명서', '은행 대출용', NOW(), '승인', '한국어', 12341, NOW(), NOW()),
 (2, '경력증명서', '자격증 신청용', NOW(), '승인', '한국어', 12341, NOW(), NOW()),
-(3, '소득증명서', '아파트 계약용', NOW(), '대기', '한국어', 12341, NOW(), NOW());
+(3, '근로소득증명서', '아파트 계약용', NOW(), '대기', '한국어', 12341, NOW(), NOW());
 
 -- 8. 인사발령(AppointmentRequest) 데이터
 INSERT INTO AppointmentRequests (appointmentRequestId, targetEmployeeId, requestingEmployeeId, appointmentType, newDepartmentId, effectiveDate, reason, status, requestDate) VALUES

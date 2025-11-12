@@ -33,7 +33,6 @@ public class AppointmentRequest {
     private Employee requestingEmployee;
 
     // 4. appointmentType (Enum 적용)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AppointmentType appointmentType;
 
@@ -56,7 +55,6 @@ public class AppointmentRequest {
     private String reason;
 
     // 9. status (Enum 적용)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RequestStatus status;
 
