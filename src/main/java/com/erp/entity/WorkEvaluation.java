@@ -1,13 +1,18 @@
 package com.erp.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@Getter
 @Entity
-@Table(name = "performance_evaluations",
-    uniqueConstraints = @UniqueConstraint(name = "uk_employee_evaluation", columnNames = {"employeeId", "evaluation_year", "evaluation_quarter"})
-)
-public class PerformanceEvaluation {
+@Table(name = "WorkEvaluations")
+
+public class WorkEvaluation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long evaluationId;
