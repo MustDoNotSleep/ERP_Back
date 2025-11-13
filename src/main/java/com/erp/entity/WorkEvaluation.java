@@ -42,9 +42,8 @@ public class WorkEvaluation {
     @Column(name = "total_grade", length = 2)
     private String totalGrade;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private Status status = Status.임시저장;
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evaluator_id")
@@ -65,10 +64,6 @@ public class WorkEvaluation {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public enum Status {
-        임시저장, 제출완료
     }
 
     // Getter/Setter 생략 (필요시 추가)

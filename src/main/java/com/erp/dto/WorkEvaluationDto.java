@@ -34,10 +34,7 @@ public class WorkEvaluationDto {
                 .collaborationScore(evaluation.getCollaborationScore())
                 .contributionGrade(evaluation.getContributionGrade())
                 .totalGrade(evaluation.getTotalGrade())
-                
-                // Entity의 Enum -> DTO의 String 변환 (기존과 동일)
-                .status(evaluation.getStatus() != null ? 
-                            evaluation.getStatus().name() : null)
+                .status(evaluation.getStatus())
                 .build();
         }
     }
