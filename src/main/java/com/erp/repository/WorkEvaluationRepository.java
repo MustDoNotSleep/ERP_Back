@@ -11,6 +11,11 @@ import java.util.List;
 
 @Repository
 public interface WorkEvaluationRepository extends JpaRepository<WorkEvaluation, Long> {
+    // 직원의 분기별 평가 단건 조회
+    java.util.Optional<WorkEvaluation> findByEmployee_IdAndEvaluationYearAndEvaluationQuarter(Long employeeId, Integer evaluationYear, Integer evaluationQuarter);
+
+    // 부서의 분기별 평가 목록 조회
+    java.util.List<WorkEvaluation> findByEmployee_Department_IdAndEvaluationYearAndEvaluationQuarter(Long departmentId, Integer evaluationYear, Integer evaluationQuarter);
 
     Page<WorkEvaluation> findAllByEvaluationYearAndEvaluationQuarterAndEmployeeIn(
         Integer evaluationYear, 
