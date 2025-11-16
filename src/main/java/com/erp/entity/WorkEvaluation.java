@@ -46,7 +46,7 @@ public class WorkEvaluation {
     private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "evaluator_id")
+    @JoinColumn(name = "evaluatorId")
     private Employee evaluator;
 
     @Column(name = "createdAt", updatable = false)
