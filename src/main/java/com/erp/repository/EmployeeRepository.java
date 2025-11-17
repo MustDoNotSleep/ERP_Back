@@ -23,4 +23,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     // Security migration methods
     List<Employee> findByPasswordStartingWith(String prefix);
     List<Employee> findByRrnStartingWith(String prefix);
+    
+    // Bulk Upsert용 - 부서별/직급별 직원 조회
+    List<Employee> findByDepartment_DepartmentName(String departmentName);
+    List<Employee> findByPosition_PositionName(String positionName);
 }

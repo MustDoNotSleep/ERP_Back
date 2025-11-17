@@ -26,4 +26,28 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 		   "LEFT JOIN FETCH e.position " +
 		   "WHERE s.paymentDate = :paymentDate")
 	List<Salary> findByPaymentDateWithEmployee(@Param("paymentDate") YearMonth paymentDate);
+	
+	// 부서별 필터링
+	@Query("SELECT s FROM Salary s " +
+		   "LEFT JOIN FETCH s.employee e " +
+		   "LEFT JOIN FETCH e.department d " +
+		   "LEFT JOIN FETCH e.position " +
+		   "WHERE s.paymentDate = :paymentDate " +
+		   "AND d.departmentName = :departmentName")
+	List<Salary> findByPaymentDateAndDepartment(
+		@Param("paymentDate") YearMonth paymentDate, 
+		@Param("departmentName") String departmentName
+	);
+	
+	// 직급별 필터링
+	@Query("SELECT s FROM Salary s " +
+		   "LEFT JOIN FETCH s.employee e " +
+		   "LEFT JOIN FETCH e.department " +
+		   "LEFT JOIN FETCH e.position p " +
+		   "WHERE s.paymentDate = :paymentDate " +
+		   "AND p.positionName = :positionName")
+	List<Salary> findByPaymentDateAndPosition(
+		@Param("paymentDate") YearMonth paymentDate, 
+		@Param("positionName") String positionName
+	);
 }

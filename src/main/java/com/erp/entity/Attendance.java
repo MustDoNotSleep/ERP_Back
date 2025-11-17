@@ -59,6 +59,18 @@ public class Attendance extends BaseEntity {
         calculateOvertimeHours();
     }
     
+    public void updateCheckOut(LocalDateTime checkOutTime) {
+        this.checkOut = checkOutTime;
+    }
+    
+    public void updateWorkHours(Double workHours) {
+        this.workHours = workHours;
+    }
+    
+    public void updateOvertimeHours(Double overtimeHours) {
+        this.overtimeHours = overtimeHours;
+    }
+    
     public void updateAttendanceType(AttendanceType attendanceType) {
         this.attendanceType = attendanceType;
     }

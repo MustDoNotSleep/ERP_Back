@@ -1,6 +1,7 @@
 package com.erp.entity;
 
 import com.erp.entity.enums.SalaryStatus;
+import com.erp.util.TaxCalculator;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,25 +31,25 @@ public class Salary extends BaseEntity {
     @Column(nullable = false)
     private BigDecimal baseSalary; // 기본 급여
     
-
     private BigDecimal overtimeAllowance; // 야근수당
     private BigDecimal nightAllowance; // 야간수당
-    private BigDecimal dutyAllowance; // 당직수당 (nullable)
     private BigDecimal bonus; // 보너스
+    
+    @Column(length = 500)
+    private String bonusReason; // 보너스 지급 사유
+    
+    @Column(length = 1000)
+    private String bonusAttachment; // 보너스 관련 첨부파일 경로/URL
 
     // 세금 및 공제
     private BigDecimal incomeTax; // 소득세
+    private BigDecimal localIncomeTax; // 지방소득세 (소득세의 10%)
     private BigDecimal nationalPension; // 국민연금
     private BigDecimal healthInsurance; // 건강보험
     private BigDecimal employmentInsurance; // 고용보험
-    private BigDecimal societyFee; // 상조회비 (nullable)
-    private BigDecimal advancePayment; // 가불금 (nullable)
     private BigDecimal otherDeductions; // 기타 공제
     
-    @Column(name = "total_salary")
     private BigDecimal totalSalary; // 총 급여
-    
-    @Column(name = "net_salary")
     private BigDecimal netSalary; // 실수령액
     
     @Column(nullable = false)
@@ -60,14 +61,14 @@ public class Salary extends BaseEntity {
         public void setBaseSalary(BigDecimal baseSalary) { this.baseSalary = baseSalary; }
         public void setOvertimeAllowance(BigDecimal overtimeAllowance) { this.overtimeAllowance = overtimeAllowance; }
         public void setNightAllowance(BigDecimal nightAllowance) { this.nightAllowance = nightAllowance; }
-        public void setDutyAllowance(BigDecimal dutyAllowance) { this.dutyAllowance = dutyAllowance; }
         public void setBonus(BigDecimal bonus) { this.bonus = bonus; }
+        public void setBonusReason(String bonusReason) { this.bonusReason = bonusReason; }
+        public void setBonusAttachment(String bonusAttachment) { this.bonusAttachment = bonusAttachment; }
         public void setIncomeTax(BigDecimal incomeTax) { this.incomeTax = incomeTax; }
+        public void setLocalIncomeTax(BigDecimal localIncomeTax) { this.localIncomeTax = localIncomeTax; }
         public void setNationalPension(BigDecimal nationalPension) { this.nationalPension = nationalPension; }
         public void setHealthInsurance(BigDecimal healthInsurance) { this.healthInsurance = healthInsurance; }
         public void setEmploymentInsurance(BigDecimal employmentInsurance) { this.employmentInsurance = employmentInsurance; }
-        public void setSocietyFee(BigDecimal societyFee) { this.societyFee = societyFee; }
-        public void setAdvancePayment(BigDecimal advancePayment) { this.advancePayment = advancePayment; }
         public void setOtherDeductions(BigDecimal otherDeductions) { this.otherDeductions = otherDeductions; }
         public void setSalaryStatus(SalaryStatus salaryStatus) { this.salaryStatus = salaryStatus; }
 
@@ -75,18 +76,66 @@ public class Salary extends BaseEntity {
         this.totalSalary = baseSalary
             .add(overtimeAllowance != null ? overtimeAllowance : BigDecimal.ZERO)
             .add(nightAllowance != null ? nightAllowance : BigDecimal.ZERO)
-            .add(dutyAllowance != null ? dutyAllowance : BigDecimal.ZERO)
             .add(bonus != null ? bonus : BigDecimal.ZERO);
     }
     
+    /**
+     * 세금 및 4대보험 자동 계산 (간이세액표 기반)
+     * Request로 전달된 값이 있으면 그 값을 우선 사용하고,
+     * 없으면 자동 계산된 값을 사용
+     */
+    public void calculateTaxAndInsurance() {
+        // 총 급여 먼저 계산
+        if (this.totalSalary == null) {
+            calculateTotal();
+        }
+        
+        // 소득세 (수동 입력값이 없으면 자동 계산)
+        if (this.incomeTax == null) {
+            this.incomeTax = TaxCalculator.calculateIncomeTax(this.totalSalary);
+        }
+        
+        // 지방소득세 (항상 소득세의 10%로 자동 계산)
+        this.localIncomeTax = TaxCalculator.calculateLocalIncomeTax(this.incomeTax);
+        
+        // 국민연금 (수동 입력값이 없으면 자동 계산)
+        if (this.nationalPension == null) {
+            this.nationalPension = TaxCalculator.calculateNationalPension(this.totalSalary);
+        }
+        
+        // 건강보험 (수동 입력값이 없으면 자동 계산)
+        if (this.healthInsurance == null) {
+            this.healthInsurance = TaxCalculator.calculateHealthInsurance(this.totalSalary);
+        }
+        
+        // 고용보험 (수동 입력값이 없으면 자동 계산)
+        if (this.employmentInsurance == null) {
+            this.employmentInsurance = TaxCalculator.calculateEmploymentInsurance(this.totalSalary);
+        }
+    }
+    
+    /**
+     * 지방소득세 자동 계산 (소득세의 10%)
+     * @deprecated calculateTaxAndInsurance() 사용 권장
+     */
+    @Deprecated
+    public void calculateLocalIncomeTax() {
+        if (incomeTax != null) {
+            this.localIncomeTax = TaxCalculator.calculateLocalIncomeTax(this.incomeTax);
+        } else {
+            this.localIncomeTax = BigDecimal.ZERO;
+        }
+    }
 
     public void calculateNetSalary() {
+        // 세금 및 4대보험 자동 계산
+        calculateTaxAndInsurance();
+        
         BigDecimal deductions = (incomeTax != null ? incomeTax : BigDecimal.ZERO)
+            .add(localIncomeTax != null ? localIncomeTax : BigDecimal.ZERO)
             .add(nationalPension != null ? nationalPension : BigDecimal.ZERO)
             .add(healthInsurance != null ? healthInsurance : BigDecimal.ZERO)
             .add(employmentInsurance != null ? employmentInsurance : BigDecimal.ZERO)
-            .add(societyFee != null ? societyFee : BigDecimal.ZERO)
-            .add(advancePayment != null ? advancePayment : BigDecimal.ZERO)
             .add(otherDeductions != null ? otherDeductions : BigDecimal.ZERO);
         this.netSalary = totalSalary.subtract(deductions);
     }

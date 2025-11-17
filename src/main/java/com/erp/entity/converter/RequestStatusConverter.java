@@ -21,6 +21,11 @@ public class RequestStatusConverter implements AttributeConverter<RequestStatus,
             return null;
         }
         
+        // "승인" -> "최종승인" 매핑 (DB 데이터 호환성)
+        if ("승인".equals(dbData)) {
+            return RequestStatus.APPROVED;
+        }
+        
         for (RequestStatus status : RequestStatus.values()) {
             if (status.getKoreanName().equals(dbData)) {
                 return status;
