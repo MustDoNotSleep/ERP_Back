@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,4 +28,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
     // Bulk Upsert용 - 부서별/직급별 직원 조회
     List<Employee> findByDepartment_DepartmentName(String departmentName);
     List<Employee> findByPosition_PositionName(String positionName);
+    
+    // 퇴직금 계산용 - 퇴직자 조회
+    List<Employee> findByQuitDateIsNotNull(); // 전체 퇴직자
+    List<Employee> findByQuitDateBetween(LocalDate startDate, LocalDate endDate); // 기간별 퇴직자
 }

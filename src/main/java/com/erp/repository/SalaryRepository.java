@@ -20,6 +20,16 @@ public interface SalaryRepository extends JpaRepository<Salary, Long> {
 	List<Salary> findByPaymentDate(YearMonth paymentDate);
 	List<Salary> findByPaymentDateAndSalaryStatus(YearMonth paymentDate, SalaryStatus salaryStatus);
 	
+	// 특정 직원의 기간별 급여 조회 (퇴직금 계산용)
+	@Query("SELECT s FROM Salary s WHERE s.employee.id = :employeeId " +
+		   "AND s.paymentDate BETWEEN :startMonth AND :endMonth " +
+		   "ORDER BY s.paymentDate DESC")
+	List<Salary> findByEmployeeIdAndPaymentDateBetween(
+		@Param("employeeId") Long employeeId,
+		@Param("startMonth") YearMonth startMonth,
+		@Param("endMonth") YearMonth endMonth
+	);
+	
 	@Query("SELECT s FROM Salary s " +
 		   "LEFT JOIN FETCH s.employee e " +
 		   "LEFT JOIN FETCH e.department " +

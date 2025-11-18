@@ -45,33 +45,37 @@ public class Course extends BaseEntity{
     // 7. endDate (종료일)
     private LocalDate endDate;
     
-    // 8. objective (TEXT 타입이므로 String으로 매핑)
+    // 8. price (교육 비용)
+    @Column(precision = 15, scale = 2)
+    private java.math.BigDecimal price;
+    
+    // 9. objective (TEXT 타입이므로 String으로 매핑)
     @Lob // 데이터베이스에서 TEXT 타입으로 매핑되도록 힌트를 줌
     private String objective; // 교육 목표
     
-    // 9. createdBy (외래 키: 과정을 생성한 직원)
+    // 10. createdBy (외래 키: 과정을 생성한 직원)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator", nullable = false)
     private Employee creator; // Employee 엔티티를 참조한다고 가정
 
-    // 10. status (교육 과정 승인 상태)
+    // 11. status (교육 과정 승인 상태)
     @Column(nullable = false)
     @Builder.Default
     private RequestStatus status = RequestStatus.PENDING;
 
-    // 11. approver (승인/반려 처리한 관리자)
+    // 12. approver (승인/반려 처리한 관리자)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "approver")
     private Employee approver;
 
-    // 12. processedDate (승인/반려 처리 일시)
+    // 13. processedDate (승인/반려 처리 일시)
     private LocalDateTime processedDate;
 
-    // 13. comment (승인/반려 코멘트)
+    // 14. comment (승인/반려 코멘트)
     @Column(length = 500)
     private String comment;
 
-    // 14. courseApplications (이 과정에 신청한 직원들)
+    // 15. courseApplications (이 과정에 신청한 직원들)
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<CourseApplication> courseApplications = new ArrayList<>();
