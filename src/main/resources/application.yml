@@ -50,9 +50,9 @@ spring:
         max-page-size: 1000
   
   flyway:
-    enabled: true
+    enabled: false
     baseline-on-migrate: true
-    baseline-version: "3.3" # V3.3까지 수동 실행했으므로
+    baseline-version: "3.6" # V3.5까지 수동 실행했으므로
     
 server:
   port: 8080
@@ -69,3 +69,15 @@ jwt:
   secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   expiration: 86400000
   refresh-expiration: 604800000
+
+ai:
+  model:
+    # 개발할 때는 무조건 이걸로 두세요! (가성비 최고)
+    name: gpt-4o-mini
+    
+    # 나중에 발표 직전에만 이걸로 바꾸세요 (성능 최고)
+    # name: gpt-4o
+
+lim:
+  api:
+    url: "https://api.openai.com/v1/chat/completions"
