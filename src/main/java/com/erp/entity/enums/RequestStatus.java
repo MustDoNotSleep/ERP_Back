@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 // 9. Status (요청 상태 - AppointmentRequest, Course 공통 사용)
 public enum RequestStatus {
     PENDING("대기"), 
-    APPROVED("최종승인"), 
+    APPROVED("승인"), 
     REJECTED("반려");
 
     private final String koreanName;

@@ -1,56 +1,35 @@
--- V1.1__education_work_tables.sql
+-- V1.1: Education, WorkExperience 테이블 생성
 
--- 1. Education Table
+-- 1. education 테이블
 CREATE TABLE education (
     educationId BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employeeId BIGINT NOT NULL,
-    schoolName VARCHAR(100) NOT NULL,
-    major VARCHAR(100),
+    employeeId BIGINT,
+    schoolName VARCHAR(255),
+    major VARCHAR(255),
+    degree VARCHAR(50),
+    graduationStatus VARCHAR(50),
     admissionDate DATE,
     graduationDate DATE,
-    degree ENUM('고졸', '전문학사', '학사', '석사', '박사') NOT NULL,
-    graduationStatus ENUM('재학', '졸업', '휴학', '중퇴', '졸업예정') NOT NULL,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100),
-    FOREIGN KEY (employeeId) REFERENCES employees(employeeId)
-);
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (employeeId) REFERENCES employees(employeeId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 2. Work Experience Table
+-- 2. workExperience 테이블
 CREATE TABLE workExperience (
     experienceId BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employeeId BIGINT NOT NULL,
-    companyName VARCHAR(100),
-    jobTitle VARCHAR(100) ,
-    finalPosition VARCHAR(100),
+    employeeId BIGINT,
+    companyName VARCHAR(255),
+    jobTitle VARCHAR(255),
+    finalPosition VARCHAR(255),
     finalSalary INT,
     startDate DATE,
     endDate DATE,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100),
-    FOREIGN KEY (employeeId) REFERENCES employees(employeeId)
-);
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (employeeId) REFERENCES employees(employeeId) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 3. Certificates Table
-CREATE TABLE certificates (
-    certificateId BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employeeId BIGINT NOT NULL,
-    certificateName VARCHAR(100),
-    issuingAuthority VARCHAR(100),
-    score VARCHAR(50),
-    acquisitionDate DATE,
-    expirationDate DATE,
-    createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    createdBy VARCHAR(100),
-    updatedBy VARCHAR(100),
-    FOREIGN KEY (employeeId) REFERENCES employees(employeeId)
-);
-
--- 4. Indexes
+-- 인덱스 생성
 CREATE INDEX idx_education_employee ON education(employeeId);
-CREATE INDEX idx_experience_employee ON work_experience(employeeId);
-CREATE INDEX idx_certificate_employee ON certificates(employeeId);
+CREATE INDEX idx_workExperience_employee ON workExperience(employeeId);

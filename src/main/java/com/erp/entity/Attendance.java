@@ -29,7 +29,6 @@ public class Attendance extends BaseEntity {
     @Column(name = "checkOut")
     private LocalDateTime checkOut;
     
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AttendanceType attendanceType;
     
@@ -58,6 +57,18 @@ public class Attendance extends BaseEntity {
         this.checkOut = checkOutTime;
         calculateWorkHours();
         calculateOvertimeHours();
+    }
+    
+    public void updateCheckOut(LocalDateTime checkOutTime) {
+        this.checkOut = checkOutTime;
+    }
+    
+    public void updateWorkHours(Double workHours) {
+        this.workHours = workHours;
+    }
+    
+    public void updateOvertimeHours(Double overtimeHours) {
+        this.overtimeHours = overtimeHours;
     }
     
     public void updateAttendanceType(AttendanceType attendanceType) {

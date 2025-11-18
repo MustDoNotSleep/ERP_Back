@@ -28,11 +28,9 @@ public class Education extends BaseEntity {
     private String schoolName;
     private String major;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "degree")
     private Degree degree;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "graduationStatus")
     private GraduationStatus graduationStatus;
     

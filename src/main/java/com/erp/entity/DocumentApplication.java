@@ -30,7 +30,6 @@ public class DocumentApplication extends BaseEntity{
     private Employee employee; 
 
     // 3. documentType (Enum 적용)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DocumentType documentType;
 
@@ -39,7 +38,6 @@ public class DocumentApplication extends BaseEntity{
     private String purpose;
 
     // 5. language (Enum 적용)
-    @Enumerated(EnumType.STRING)
     //@Column(nullable = false)
     private DocumentLanguage language;
     
@@ -49,7 +47,6 @@ public class DocumentApplication extends BaseEntity{
     private String reason;
 
     // 7. status (Enum 적용)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DocumentStatus documentStatus;
     

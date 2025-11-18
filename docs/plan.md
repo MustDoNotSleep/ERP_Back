@@ -41,18 +41,18 @@
   - DTO 12개 생성/수정 완료
 
 ### 다음 단계: Day 6-10 (Phase 8-12)
-- [ ] Phase 8: Education 모듈 완성
+- [x] Phase 8: Education 모듈 완성
   - EducationService, EducationController 보완
   - WorkExperienceService, WorkExperienceController 보완
   - CertificateService, CertificateController 보완
   
-- [ ] Phase 9: Attendance 모듈 (주석 해제 및 구현)
+- [x] Phase 9: Attendance 모듈 (주석 해제 및 구현)
   - Attendance 엔티티 활성화
   - AttendanceService 구현
   - AttendanceController 구현
   - 출퇴근 기록 API
 
-- [ ] Phase 10: Leave 모듈 (주석 해제 및 구현)
+- [x] Phase 10: Leave 모듈 (주석 해제 및 구현)
   - Leave 엔티티 활성화
   - LeaveService 구현
   - LeaveController 구현
@@ -64,11 +64,12 @@
   - PostController 구현
   - 공지사항 CRUD
 
-- [ ] Phase 12: Salary 모듈 (주석 해제 및 구현)
+- [x] Phase 12: Salary 모듈 (완료)
   - Salary 엔티티 활성화
   - SalaryService 구현
   - SalaryController 구현
   - 급여 정보 관리
+  - 급여 관련 DTO/Repository/Service/Controller 전체 최신 엔티티 기준으로 리팩토링
 
 [이하 각 Day별 상세 계획]
 

@@ -34,7 +34,6 @@ public class CourseApplication {
     private LocalDateTime applicationDate;
     
     // 5. status (Enum 적용: 대기, 승인, 반려)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApplicationStatus status;
     

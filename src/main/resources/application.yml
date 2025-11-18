@@ -50,10 +50,10 @@ spring:
         max-page-size: 1000
   
   flyway:
-    enabled: false
-    baseline-on-migrate: true
-    baseline-version: "3.6" # V3.5까지 수동 실행했으므로
-    
+    enabled: true
+    # baseline-on-migrate: true
+    # baseline-version: "3.3" # V3.3까지 수동 실행했으므로
+      
 server:
   port: 8080
   servlet:

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 // 5. CourseType (교육 과정 유형)
 public enum CourseType {
-    REQUIRED("필수이수"), 
-    ELECTIVE("선택이수");
+    REQUIRED("필수"), 
+    ELECTIVE("선택");
 
     private final String koreanName;
     
@@ -40,16 +40,16 @@ public enum CourseType {
         }
         
         // "optional" -> ELECTIVE 매핑 추가
-        if ("optional".equalsIgnoreCase(value) || "선택".equals(value)) {
+        if ("optional".equalsIgnoreCase(value) || "선택".equals(value) || "선택이수".equals(value)) {
             return ELECTIVE;
         }
         
         // "required" -> REQUIRED 매핑
-        if ("mandatory".equalsIgnoreCase(value) || "필수".equals(value)) {
+        if ("mandatory".equalsIgnoreCase(value) || "필수".equals(value) || "필수이수".equals(value)) {
             return REQUIRED;
         }
         
         throw new IllegalArgumentException("Invalid CourseType: " + value + 
-            ". Allowed values: REQUIRED(필수이수), ELECTIVE(선택이수), required, optional");
+            ". Allowed values: REQUIRED(필수), ELECTIVE(선택), required, optional");
     }
 }

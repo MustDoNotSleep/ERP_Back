@@ -36,7 +36,6 @@ public class Course extends BaseEntity{
     private Integer capacity;
     
     // 5. courseType (Enum 적용: 필수이수, 선택이수)
-    @Enumerated(EnumType.STRING)
     @Column(name = "courseType", nullable = false)
     private CourseType courseType;
     
@@ -56,7 +55,6 @@ public class Course extends BaseEntity{
     private Employee creator; // Employee 엔티티를 참조한다고 가정
 
     // 10. status (교육 과정 승인 상태)
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
     private RequestStatus status = RequestStatus.PENDING;
