@@ -1,66 +1,72 @@
 package com.erp.dto;
 
 import com.erp.entity.WorkEvaluation;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import lombok.*;
 
 public class WorkEvaluationDto {
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Response {
-        private Long evaluationId;
+        private Long id;
         private Long employeeId;
-        private String employeeName;
-        private Integer evaluationYear;
-        private Integer evaluationQuarter;
-        private Integer attitudeScore;
-        private Integer achievementScore;
-        private Integer collaborationScore;
-        private String contributionGrade;
-        private String totalGrade;
-        private String status;
-        private Long evaluatorId;
-        private String evaluatorName;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
+        private String name;
+        private Integer year;
+        private String quarter;
+        
+        private String teamName;     // 부서명
+        
+        // [수정 완료] 화면 표시용이므로 '직급명'이 들어가는 게 맞습니다.
+        private String positionName; 
+        
+        private Integer workAttitude;
+        private Integer goalAchievement;
+        private Integer collaboration;
+        private String contribution;
+        private String comment;
 
         public static Response from(WorkEvaluation evaluation) {
+            var emp = evaluation.getEmployee();
+            var dept = (emp != null) ? emp.getDepartment() : null;
+            var pos = (emp != null) ? emp.getPosition() : null; // 직급 정보
+            var evaluator = evaluation.getEvaluator();
+
+            String evaluatorInfo = (evaluator != null) 
+                ? evaluator.getId() + " - " + evaluator.getName() 
+                : "-";
+
             return Response.builder()
-                .evaluationId(evaluation.getEvaluationId())
-                .employeeId(evaluation.getEmployee().getId())
-                .employeeName(evaluation.getEmployee().getName())
-                .evaluationYear(evaluation.getEvaluationYear())
-                .evaluationQuarter(evaluation.getEvaluationQuarter())
-                .attitudeScore(evaluation.getAttitudeScore())
-                .achievementScore(evaluation.getAchievementScore())
-                .collaborationScore(evaluation.getCollaborationScore())
-                .contributionGrade(evaluation.getContributionGrade())
-                .totalGrade(evaluation.getTotalGrade())
-                .status(evaluation.getStatus())
-                .evaluatorId(evaluation.getEvaluator() != null ? evaluation.getEvaluator().getId() : null)
-                .evaluatorName(evaluation.getEvaluator() != null ? evaluation.getEvaluator().getName() : null)
-                .createdAt(evaluation.getCreatedAt())
-                .updatedAt(evaluation.getUpdatedAt())
+                .id(evaluation.getEvaluationId())
+                .employeeId(emp != null ? emp.getId() : null)
+                .name(emp != null ? emp.getName() : null)
+                .year(evaluation.getEvaluationYear())
+                .quarter(evaluation.getEvaluationQuarter() + "분기")
+                .teamName(dept != null ? dept.getTeamName() : null)
+                
+                // [매핑] Position 엔티티의 getPositionName() (예: "부장", "대리") 사용
+                .positionName(pos != null ? pos.getPositionName() : null) 
+                
+                .workAttitude(evaluation.getAttitudeScore())
+                .goalAchievement(evaluation.getAchievementScore())
+                .collaboration(evaluation.getCollaborationScore())
+                .contribution(evaluation.getContributionGrade())
+                .comment(evaluatorInfo) 
                 .build();
         }
     }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    // Request DTO는 그대로 유지 (프론트 필드명 기준)
+    @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
     public static class UpdateRequest {
-        private Integer evaluationYear;
-        private Integer evaluationQuarter;
-        private Integer attitudeScore;
-        private Integer achievementScore;
-        private Integer collaborationScore;
-        private String contributionGrade;
-        private String totalGrade;
+        private Integer year;
+        private String quarter;
+        private Integer workAttitude;
+        private Integer goalAchievement;
+        private Integer collaboration;
+        private String contribution;
+        private String comment;
         private String status;
         private Long evaluatorId;
     }
