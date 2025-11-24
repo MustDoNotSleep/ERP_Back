@@ -52,4 +52,9 @@ public interface WorkEvaluationRepository extends JpaRepository<WorkEvaluation, 
         Integer evaluationYear,
         Integer evaluationQuarter
     );
+    List<WorkEvaluation> findByEvaluationYearAndEvaluationQuarterAndEmployee_Department_TeamName(
+        Integer evaluationYear,
+        Integer evaluationQuarter,
+        String teamName
+    );
 }

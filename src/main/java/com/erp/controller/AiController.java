@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hr/ai")
+@RequestMapping("/ai")
 @RequiredArgsConstructor
 public class AiController {
 

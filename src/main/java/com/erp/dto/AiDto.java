@@ -24,13 +24,16 @@ public class AiDto {
     @AllArgsConstructor
     public static class Candidate {
         private String name;
-        private String department; // teamName
-        private Integer total_score;
+        private String teamName;
+        private Integer workAttitude;
+        private Integer goalAchievement;
+        private Integer collaboration;
         private String comment;
     }
 
     // 2. 파이썬에서 받을 데이터 (응답)
     @Getter
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AiResponse {
@@ -44,7 +47,7 @@ public class AiDto {
     public static class Recommendation {
         private int rank;
         private String name;
-        private String department;
+        private String teamName;
         private String reason;
     }
 }

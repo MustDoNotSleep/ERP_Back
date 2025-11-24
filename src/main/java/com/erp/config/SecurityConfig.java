@@ -48,7 +48,8 @@ public class SecurityConfig {
                     "/swagger-resources/**",
                     "/webjars/**",
                     "/auth/**",
-                    "/public/**"
+                    "/public/**",
+                    "/ai/**"
                 ).permitAll()
                 
                 // 연차 관리 (임시로 공개 - 테스트용)
