@@ -6,6 +6,7 @@ import com.erp.entity.CourseApplication;
 import com.erp.entity.Employee;
 import com.erp.entity.Welfare;
 import com.erp.entity.enums.ApplicationStatus;
+import com.erp.entity.enums.WelfareTransactionType;
 import com.erp.entity.enums.WelfareType;
 import com.erp.exception.EntityNotFoundException;
 import com.erp.repository.CourseApplicationRepository;
@@ -121,6 +122,7 @@ public class CourseApplicationService {
                 // Welfare 레코드 생성 (복리후생 비용 차감)
                 Welfare welfare = Welfare.builder()
                     .employee(applicant)
+                    .transactionType(WelfareTransactionType.USE)
                     .welfareType(WelfareType.EDUCATION)
                     .paymentMonth(YearMonth.now())
                     .amount(coursePrice)

@@ -19,13 +19,23 @@ public interface WelfareRepository extends JpaRepository<Welfare, Long> {
     // 특정 월의 직원 복리후생 내역
     List<Welfare> findByEmployeeIdAndPaymentMonth(Long employeeId, YearMonth paymentMonth);
     
-    // 특정 연도의 직원 복리후생 사용 총액
+    // 특정 연도의 직원 복리후생 사용 총액 (USE만)
     @Query("SELECT COALESCE(SUM(w.amount), 0) FROM Welfare w " +
            "WHERE w.employee.id = :employeeId " +
+           "AND w.transactionType = 'USE' " +
            "AND w.isApproved = true " +
            "AND SUBSTRING(w.paymentMonth, 1, 4) = :year")
     BigDecimal getTotalUsedAmountByEmployeeAndYear(@Param("employeeId") Long employeeId, 
                                                      @Param("year") String year);
+    
+    // 특정 연도의 직원 복리후생 지급 총액 (GRANT만)
+    @Query("SELECT COALESCE(SUM(w.amount), 0) FROM Welfare w " +
+           "WHERE w.employee.id = :employeeId " +
+           "AND w.transactionType = 'GRANT' " +
+           "AND w.isApproved = true " +
+           "AND SUBSTRING(w.paymentMonth, 1, 4) = :year")
+    BigDecimal getTotalGrantedAmountByEmployeeAndYear(@Param("employeeId") Long employeeId, 
+                                                        @Param("year") String year);
     
     // 승인 대기 중인 복리후생 목록
     List<Welfare> findByIsApprovedFalseOrderByCreatedAtDesc();

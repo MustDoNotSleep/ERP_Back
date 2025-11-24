@@ -24,6 +24,7 @@ public class WorkExperienceDto {
     @Builder
     public static class Response {
         private Long id;
+        private Long employeeId;
         private String employeeName;
         private String companyName;
         private String jobTitle;
@@ -35,6 +36,7 @@ public class WorkExperienceDto {
         public static Response from(WorkExperience experience) {
             return Response.builder()
                 .id(experience.getId())
+                .employeeId(experience.getEmployee().getId())
                 .employeeName(experience.getEmployee().getName())
                 .companyName(experience.getCompanyName())
                 .jobTitle(experience.getJobTitle())

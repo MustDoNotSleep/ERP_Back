@@ -5,6 +5,7 @@ import com.erp.entity.enums.ApplicationStatus;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class CourseApplicationDto {
@@ -24,6 +25,8 @@ public class CourseApplicationDto {
         private String employeeName;
         private String departmentName;
         private LocalDateTime applicationDate;
+        private LocalDate startDate;
+        private LocalDate endDate;
         private ApplicationStatus status;
         private String processorName;
         private LocalDateTime processedAt;
@@ -37,6 +40,8 @@ public class CourseApplicationDto {
                 .departmentName(application.getEmployee().getDepartment() != null ?
                     application.getEmployee().getDepartment().getDepartmentName() : null)
                 .applicationDate(application.getApplicationDate())
+                .startDate(application.getCourse().getStartDate())
+                .endDate(application.getCourse().getEndDate())
                 .status(application.getStatus())
                 .processorName(application.getProcessor() != null ? 
                     application.getProcessor().getName() : null)

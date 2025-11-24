@@ -150,4 +150,13 @@ public class Employee extends BaseEntity implements UserDetails {
     public void promoteToPosition(Position position) {
         this.position = position;
     }
+    
+    /**
+     * 퇴사일 업데이트 (퇴직 신청 승인 시 사용)
+     * 
+     * @param quitDate 퇴사일
+     */
+    public void updateQuitDate(LocalDate quitDate) {
+        this.quitDate = quitDate;
+    }
 }

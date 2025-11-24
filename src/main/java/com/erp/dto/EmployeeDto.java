@@ -54,6 +54,7 @@ public class EmployeeDto {
         private String internalNumber;
         private String familyCertificate;
         private String departmentName;
+        private String teamName;  // 추가
         private String positionName;
         private EmploymentType employmentType;
         private Nationality nationality;
@@ -75,6 +76,8 @@ public class EmployeeDto {
                 .familyCertificate(employee.getFamilyCertificate())
                 .departmentName(employee.getDepartment() != null ? 
                     employee.getDepartment().getDepartmentName() : null)
+                .teamName(employee.getDepartment() != null ? 
+                    employee.getDepartment().getTeamName() : null)  // 추가
                 .positionName(employee.getPosition() != null ? 
                     employee.getPosition().getPositionName() : null)
                 .employmentType(employee.getEmploymentType())
