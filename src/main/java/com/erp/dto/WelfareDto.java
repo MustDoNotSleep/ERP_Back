@@ -46,9 +46,10 @@ public class WelfareDto {
         private Long employeeId;
         private String employeeName;
         private YearMonth yearMonth;
-        private BigDecimal totalBudget;        // 연간 총 복리후생 예산
+        private BigDecimal grantedAmount;      // 실제 지급된 복리후생 금액
         private BigDecimal usedAmount;         // 사용한 금액
         private BigDecimal remainingAmount;    // 남은 금액
+        private Double usageRate;              // 사용률 (0.0 ~ 100.0)
     }
     
     @Getter

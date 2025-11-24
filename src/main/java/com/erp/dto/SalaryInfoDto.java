@@ -13,6 +13,7 @@ public class SalaryInfoDto {
         private Long employeeId;
         private BankName bankName;
         private String accountNumber;
+        private java.math.BigDecimal monthlyBaseSalary;
     }
     
     @Getter
@@ -22,6 +23,7 @@ public class SalaryInfoDto {
         private String employeeName;
         private BankName bankName;
         private String accountNumber;
+        private java.math.BigDecimal monthlyBaseSalary;
         
         public static Response from(SalaryInfo info) {
             return Response.builder()
@@ -29,6 +31,7 @@ public class SalaryInfoDto {
                 .employeeName(info.getEmployee().getName())
                 .bankName(info.getBankName())
                 .accountNumber(info.getAccountNumber())
+                .monthlyBaseSalary(info.getMonthlyBaseSalary())
                 .build();
         }
     }
@@ -38,5 +41,6 @@ public class SalaryInfoDto {
     public static class UpdateRequest {
         private BankName bankName;
         private String accountNumber;
+        private java.math.BigDecimal monthlyBaseSalary;
     }
 }

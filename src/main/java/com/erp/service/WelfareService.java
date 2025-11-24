@@ -43,17 +43,38 @@ public class WelfareService {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(() -> new IllegalArgumentException("직원을 찾을 수 없습니다."));
         
-        // 해당 연도 사용 금액 조회
-        BigDecimal usedAmount = welfareRepository.getTotalUsedAmountByEmployeeAndYear(employeeId, String.valueOf(year));
-        BigDecimal remainingAmount = ANNUAL_WELFARE_BUDGET.subtract(usedAmount);
+        String yearStr = String.valueOf(year);
+        
+        // 해당 연도 지급 금액 조회 (GRANT)
+        BigDecimal grantedAmount = welfareRepository.getTotalGrantedAmountByEmployeeAndYear(employeeId, yearStr);
+        
+        // 지급액이 없으면 기본값 사용 (200만원)
+        if (grantedAmount.compareTo(BigDecimal.ZERO) == 0) {
+            grantedAmount = ANNUAL_WELFARE_BUDGET;
+        }
+        
+        // 해당 연도 사용 금액 조회 (USE)
+        BigDecimal usedAmount = welfareRepository.getTotalUsedAmountByEmployeeAndYear(employeeId, yearStr);
+        
+        // 남은 금액
+        BigDecimal remainingAmount = grantedAmount.subtract(usedAmount);
+        
+        // 사용률 계산 (%)
+        Double usageRate = 0.0;
+        if (grantedAmount.compareTo(BigDecimal.ZERO) > 0) {
+            usageRate = usedAmount.divide(grantedAmount, 4, java.math.RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .doubleValue();
+        }
         
         return WelfareDto.BalanceResponse.builder()
             .employeeId(employeeId)
             .employeeName(employee.getName())
             .yearMonth(YearMonth.of(year, 1)) // 연도 표시
-            .totalBudget(ANNUAL_WELFARE_BUDGET)
+            .grantedAmount(grantedAmount)
             .usedAmount(usedAmount)
             .remainingAmount(remainingAmount)
+            .usageRate(usageRate)
             .build();
     }
     

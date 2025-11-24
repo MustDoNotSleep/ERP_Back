@@ -1,5 +1,6 @@
 package com.erp.entity;
 
+import com.erp.entity.enums.WelfareTransactionType;
 import com.erp.entity.enums.WelfareType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,7 @@ import java.time.YearMonth;
 
 /**
  * 복리후생 엔티티
- * 직원별 복리후생 내역을 관리 (교육지원금 등)
+ * 직원별 복리후생 지급/사용 내역을 관리
  */
 @Entity
 @Table(name = "welfare")
@@ -25,10 +26,16 @@ public class Welfare extends BaseEntity {
     @Column(name = "welfareId")
     private Long id;
     
-    // 직원 (복리후생을 받는 직원)
+    // 직원 (복리후생을 받거나 사용하는 직원)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employeeId", nullable = false)
     private Employee employee;
+    
+    // 거래 타입 (지급 또는 사용)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private WelfareTransactionType transactionType = WelfareTransactionType.USE;
     
     // 복리후생 유형
     @Enumerated(EnumType.STRING)
@@ -39,7 +46,7 @@ public class Welfare extends BaseEntity {
     @Column(nullable = false)
     private YearMonth paymentMonth;
     
-    // 지급 금액
+    // 금액 (지급 시: 입금액, 사용 시: 출금액)
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal amount;
     
