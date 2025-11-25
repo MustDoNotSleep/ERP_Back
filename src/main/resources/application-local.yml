@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/erp_db
+    url: jdbc:mysql://localhost:3306/erp
     username: root
-    password: "0000"
+    password: "S3v3nt33n^0526"
     driver-class-name: com.mysql.cj.jdbc.Driver
   
   jpa:
