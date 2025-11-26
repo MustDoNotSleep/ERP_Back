@@ -4,6 +4,8 @@ import com.erp.entity.Employee;
 import com.erp.entity.Leave;
 import com.erp.entity.enums.LeaveStatus;
 import com.erp.entity.enums.LeaveType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +16,13 @@ import java.util.List;
 
 @Repository
 public interface LeaveRepository extends JpaRepository<Leave, Long> {
+    
+    // 전체 휴가 목록 조회 (페이징)
+    @Query("SELECT l FROM Leave l " +
+           "LEFT JOIN FETCH l.employee e " +
+           "LEFT JOIN FETCH e.department d " +
+           "ORDER BY l.startDate DESC")
+    Page<Leave> findAllWithEmployee(Pageable pageable);
     
     // 특정 직원의 모든 휴가 조회
     List<Leave> findByEmployeeOrderByStartDateDesc(Employee employee);

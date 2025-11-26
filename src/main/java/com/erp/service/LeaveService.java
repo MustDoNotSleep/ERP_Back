@@ -13,6 +13,8 @@ import com.erp.repository.AnnualLeaveBalanceRepository;
 import com.erp.repository.AttendanceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +39,14 @@ public class LeaveService {
     private final AnnualLeaveBalanceRepository annualLeaveBalanceRepository;
     private final AnnualLeaveService annualLeaveService;
     private final AttendanceRepository attendanceRepository;
+    
+    /**
+     * 전체 휴가 목록 조회 (페이징)
+     */
+    public Page<LeaveDto.Response> getAllLeaves(Pageable pageable) {
+        return leaveRepository.findAllWithEmployee(pageable)
+                .map(this::toResponse);
+    }
     
     /**
      * 휴가 신청

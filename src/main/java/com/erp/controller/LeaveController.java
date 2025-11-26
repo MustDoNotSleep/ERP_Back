@@ -1,9 +1,12 @@
 package com.erp.controller;
 
 import com.erp.dto.LeaveDto;
+import com.erp.dto.PageResponse;
 import com.erp.entity.enums.LeaveStatus;
 import com.erp.service.LeaveService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,16 @@ import java.util.List;
 public class LeaveController {
     
     private final LeaveService leaveService;
+    
+    /**
+     * 전체 휴가 목록 조회 (페이징)
+     */
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR')")
+    public ResponseEntity<ApiResponse<PageResponse<LeaveDto.Response>>> getAllLeaves(Pageable pageable) {
+        Page<LeaveDto.Response> leaves = leaveService.getAllLeaves(pageable);
+        return ResponseEntity.ok(ApiResponse.success(PageResponse.of(leaves)));
+    }
     
     /**
      * 휴가 신청
