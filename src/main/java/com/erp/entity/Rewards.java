@@ -5,62 +5,65 @@ import com.erp.entity.enums.RewardStatus;
 import com.erp.entity.enums.RewardType;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "rewards") // 테이블 이름
+@Table(name = "rewards")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Rewards extends BaseEntity {
+public class Rewards extends BaseEntity { // BaseEntity에도 createdAt 매핑 확인 필요!
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long rewardId; // DB 컬럼명: rewardId (일치하므로 @Column 생략 가능)
+    @Column(name = "rewardId") // DB 컬럼명 명시
+    private Long rewardId;
 
-    // --- 1. 대상자 정보 (N:1) ---
-    // DB 컬럼명: employeeId
-    // 객체로 매핑하되, 연결할 컬럼 이름(name)을 DB와 똑같이 'employeeId'로 지정
+    // --- 1. 대상자 정보 ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employeeId", nullable = false)
+    @JoinColumn(name = "employeeId", nullable = false) // FK 컬럼명 명시
     private Employee employee;
 
-    // --- 2. 포상 상세 정보 ---
-    // 아래 필드들은 DB 컬럼명과 변수명이 토씨 하나 안 틀리고 같아서 @Column 생략!
+    // --- 2. 포상 상세 정보 (여기가 핵심!) ---
     
-    @Column(nullable = false)
+    @Column(name = "rewardDate", nullable = false) // ⭐ DB의 'rewardDate'와 매핑
     private LocalDate rewardDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RewardType rewardType; // ENUM (CONTRIBUTION, BEST_EMPLOYEE...)
+    @Column(name = "rewardType", nullable = false) // ⭐ DB의 'rewardType'와 매핑
+    private RewardType rewardType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private RewardItem rewardItem; // ENUM (MONEY, VACATION...)
+    @Column(name = "rewardItem", nullable = false) // ⭐ DB의 'rewardItem'와 매핑
+    private RewardItem rewardItem;
 
-    private String rewardValue;    // 포상 가치 (금액, 일수 등)
+    @Column(name = "rewardValue") // ⭐ DB의 'rewardValue'와 매핑
+    private String rewardValue;
+
+    @Column(name = "amount")
+    private Double amount;
 
     @Lob
-    private String reason;         // 포상 사유
+    @Column(name = "reason")
+    private String reason;
 
     // --- 3. 결재 상태 ---
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     @Builder.Default
-    private RewardStatus status = RewardStatus.PENDING; // 기본값: 대기
+    private RewardStatus status = RewardStatus.PENDING;
 
-    // --- 4. 승인자 정보 (N:1) ---
-    // DB 컬럼명: approverId
+    // --- 4. 승인자 정보 ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approverId")
+    @JoinColumn(name = "approverId") // FK 컬럼명 명시
     private Employee approver;
 
+    @Column(name = "approvedAt") // ⭐ DB의 'approvedAt' (카멜케이스) 매핑
     private LocalDateTime approvedAt;
 
-    // --- 비즈니스 로직 (승인/반려) ---
+    // (비즈니스 로직 메서드는 그대로 두시면 됩니다)
     public void approve(Employee approver) {
         this.status = RewardStatus.APPROVED;
         this.approver = approver;
