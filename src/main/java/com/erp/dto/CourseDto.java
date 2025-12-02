@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -23,6 +24,7 @@ public class CourseDto {
         private LocalDate startDate;
         private LocalDate endDate;
         private String objective;
+        private BigDecimal price; // 교육비
     }
     
     @Getter
@@ -36,6 +38,7 @@ public class CourseDto {
         private LocalDate startDate;
         private LocalDate endDate;
         private String objective;
+        private BigDecimal price; // 교육비
         private String creatorName;
         private RequestStatus status;
         private String approverName;
@@ -54,6 +57,7 @@ public class CourseDto {
                 .startDate(course.getStartDate())
                 .endDate(course.getEndDate())
                 .objective(course.getObjective())
+                .price(course.getPrice()) // 교육비 추가
                 .creatorName(course.getCreator() != null ? 
                     course.getCreator().getName() : null)
                 .status(course.getStatus())
@@ -76,6 +80,7 @@ public class CourseDto {
         private LocalDate startDate;
         private LocalDate endDate;
         private String objective;
+        private BigDecimal price; // 교육비
     }
 
     @Getter

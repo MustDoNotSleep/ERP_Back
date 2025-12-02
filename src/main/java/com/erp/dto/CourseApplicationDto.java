@@ -22,6 +22,7 @@ public class CourseApplicationDto {
     public static class Response {
         private Long id;
         private String courseName;
+        private Long employeeId;
         private String employeeName;
         private String departmentName;
         private LocalDateTime applicationDate;
@@ -36,6 +37,7 @@ public class CourseApplicationDto {
             return Response.builder()
                 .id(application.getId())
                 .courseName(application.getCourse().getCourseName())
+                .employeeId(application.getEmployee().getId())
                 .employeeName(application.getEmployee().getName())
                 .departmentName(application.getEmployee().getDepartment() != null ?
                     application.getEmployee().getDepartment().getDepartmentName() : null)

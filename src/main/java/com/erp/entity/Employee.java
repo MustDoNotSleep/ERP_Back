@@ -85,22 +85,26 @@ public class Employee extends BaseEntity implements UserDetails {
         if (position != null && position.getPositionLevel() != null) {
             int level = position.getPositionLevel();
             
+            System.out.println("DEBUG - Employee: " + this.name + ", Position: " + position.getPositionName() + ", Level: " + level);
+            
             // Level에 따른 권한 부여
-            if (level >= 5) {
+            if (level >= 8) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                 authorities.add(new SimpleGrantedAuthority("ROLE_HR"));
                 authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
-            } else if (level >= 3) {
+            } else if (level >= 6) {
                 authorities.add(new SimpleGrantedAuthority("ROLE_MANAGER"));
             }
             
             // 모든 직원은 기본 USER 권한
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         } else {
+            System.out.println("DEBUG - Employee: " + this.name + ", Position: " + (position != null ? position.getPositionName() : "NULL") + ", Level: NULL");
             // Position이 없는 경우 기본 USER 권한만
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
         
+        System.out.println("DEBUG - Authorities: " + authorities);
         return authorities;
     }
     

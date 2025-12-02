@@ -108,6 +108,7 @@ public class CourseService {
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .objective(request.getObjective())
+                .price(request.getPrice())
                 .creator(creator)
                 .build();
 
@@ -130,6 +131,7 @@ public class CourseService {
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .objective(request.getObjective())
+                .price(request.getPrice())
                 .creator(course.getCreator())
                 .courseType(course.getCourseType())
                 .build();
@@ -175,6 +177,7 @@ public class CourseService {
                 .startDate(course.getStartDate())
                 .endDate(course.getEndDate())
                 .objective(course.getObjective())
+                .price(course.getPrice())
                 .creator(course.getCreator())
                 .status(newStatus)
                 .approver(approver)

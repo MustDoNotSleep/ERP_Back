@@ -28,6 +28,7 @@ public class WelfareDto {
         private Long employeeId;
         private String employeeName;
         private String departmentName;
+        private String transactionType; // GRANT(지급) or USE(사용)
         private String welfareType;
         private String welfareTypeName; // "교육 지원금", "도서 구입비" 등
         private YearMonth paymentMonth;

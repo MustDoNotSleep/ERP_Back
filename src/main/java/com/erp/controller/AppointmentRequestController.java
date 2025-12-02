@@ -22,7 +22,7 @@ public class AppointmentRequestController {
     private final AppointmentRequestService appointmentRequestService;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR_MANAGER')") 
     public ResponseEntity<ApiResponse<PageResponse<AppointmentRequestDto.Response>>> getAllRequests(Pageable pageable) {
         Page<AppointmentRequestDto.Response> requests = appointmentRequestService.getAllRequests(pageable);
         return ResponseEntity.ok(ApiResponse.success(PageResponse.of(requests)));

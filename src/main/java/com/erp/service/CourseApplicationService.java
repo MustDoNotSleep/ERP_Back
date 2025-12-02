@@ -13,6 +13,7 @@ import com.erp.repository.CourseApplicationRepository;
 import com.erp.repository.CourseRepository;
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.WelfareRepository;
+import com.erp.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -91,8 +92,15 @@ public class CourseApplicationService {
         CourseApplication application = courseApplicationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("CourseApplication", id.toString()));
 
-        Employee processor = employeeRepository.findById(request.getProcessorId())
-                .orElseThrow(() -> new EntityNotFoundException("Employee", request.getProcessorId().toString()));
+        // processorId가 없으면 토큰에서 자동 추출
+        Long processorId = request.getProcessorId();
+        if (processorId == null) {
+            processorId = SecurityUtil.getCurrentEmployeeId();
+        }
+        
+        final Long finalProcessorId = processorId;
+        Employee processor = employeeRepository.findById(finalProcessorId)
+                .orElseThrow(() -> new EntityNotFoundException("Employee", finalProcessorId.toString()));
 
         // 승인 시 복리후생 예산 확인 및 차감
         if (request.isApproved()) {

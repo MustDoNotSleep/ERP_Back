@@ -34,7 +34,6 @@ public class LeaveController {
      * 휴가 신청
      */
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ApiResponse<LeaveDto.Response>> requestLeave(
         @RequestBody LeaveDto.Request request) {
         LeaveDto.Response response = leaveService.requestLeave(request);
@@ -55,7 +54,7 @@ public class LeaveController {
      * 특정 직원의 휴가 목록 조회
      */
     @GetMapping("/employee/{employeeId}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER') or #employeeId == authentication.principal.id")
     public ResponseEntity<ApiResponse<List<LeaveDto.Response>>> getLeavesByEmployee(
         @PathVariable Long employeeId) {
         List<LeaveDto.Response> responses = leaveService.getLeavesByEmployee(employeeId);
@@ -100,7 +99,6 @@ public class LeaveController {
      * 휴가 취소
      */
     @PutMapping("/{leaveId}/cancel")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<ApiResponse<LeaveDto.Response>> cancelLeave(@PathVariable Long leaveId) {
         LeaveDto.Response response = leaveService.cancelLeave(leaveId);
         return ResponseEntity.ok(ApiResponse.success("휴가가 취소되었습니다.", response));
@@ -110,7 +108,7 @@ public class LeaveController {
      * 특정 직원의 연도별 휴가 통계
      */
     @GetMapping("/employee/{employeeId}/statistics")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER') or #employeeId == authentication.principal.id")
     public ResponseEntity<ApiResponse<LeaveDto.Statistics>> getLeaveStatistics(
         @PathVariable Long employeeId,
         @RequestParam int year) {
