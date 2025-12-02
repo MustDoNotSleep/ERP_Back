@@ -112,7 +112,7 @@ public class AttendanceController {
      * 특정 직원의 기간별 근태 조회
      */
     @GetMapping("/employee/{employeeId}/period")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_HR', 'ROLE_MANAGER') or #employeeId == authentication.principal.id")
     public ResponseEntity<ApiResponse<List<AttendanceDto.Response>>> getAttendancesByEmployeeAndPeriod(
         @PathVariable Long employeeId,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

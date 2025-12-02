@@ -133,6 +133,7 @@ public class WelfareService {
             .employeeName(welfare.getEmployee().getName())
             .departmentName(welfare.getEmployee().getDepartment() != null 
                 ? welfare.getEmployee().getDepartment().getDepartmentName() : null)
+            .transactionType(welfare.getTransactionType().name()) // GRANT or USE
             .welfareType(welfare.getWelfareType().name())
             .welfareTypeName(welfare.getWelfareType().getDescription())
             .paymentMonth(welfare.getPaymentMonth())

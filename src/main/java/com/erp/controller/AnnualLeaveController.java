@@ -21,10 +21,9 @@ public class AnnualLeaveController {
     /**
      * 전체 직원 연차 일괄 발생 (관리자용)
      * POST /api/annual-leave/generate-all
-     * 임시로 인증 제거 - 테스트 후 다시 활성화 필요
      */
     @PostMapping("/generate-all")
-    // @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<Map<String, String>> generateAnnualLeaveForAll() {
         try {
             annualLeaveScheduler.generateAnnualLeaveForAllEmployees();
