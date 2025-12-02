@@ -50,7 +50,7 @@ spring:
         max-page-size: 1000
   
   flyway:
-    enabled: false
+    enabled: true
     # baseline-on-migrate: true
     # baseline-version: "4.9" # V3.3까지 수동 실행했으므로
 
