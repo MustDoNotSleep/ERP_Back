@@ -39,22 +39,18 @@ public interface WorkEvaluationRepository extends JpaRepository<WorkEvaluation, 
 
     List<WorkEvaluation> findByEvaluationYearAndEvaluationQuarter(Integer evaluationYear, Integer evaluationQuarter);
 
-    // ✅ [수정 1] DepartmentName -> TeamName 으로 변경
-    // (Department 엔티티 안에 private String teamName; 변수가 있어야 함)
-    List<WorkEvaluation> findByEmployee_Department_TeamName(String teamName);
+    List<WorkEvaluation> findByEmployee_Department_DepartmentName(String departmentName);
+    
+    List<WorkEvaluation> findByEmployee_Department_DepartmentNameAndEvaluationYear(String departmentName, Integer evaluationYear);
 
-    // ✅ [수정 2] DepartmentName -> TeamName 으로 변경
-    List<WorkEvaluation> findByEmployee_Department_TeamNameAndEvaluationYear(String teamName, Integer evaluationYear);
-
-    // ✅ [수정 3] DepartmentName -> TeamName 으로 변경
-    List<WorkEvaluation> findByEmployee_Department_TeamNameAndEvaluationYearAndEvaluationQuarter(
-        String teamName,
+    List<WorkEvaluation> findByEmployee_Department_DepartmentNameAndEvaluationYearAndEvaluationQuarter(
+        String departmentName,
         Integer evaluationYear,
         Integer evaluationQuarter
     );
-    List<WorkEvaluation> findByEvaluationYearAndEvaluationQuarterAndEmployee_Department_TeamName(
+    List<WorkEvaluation> findByEvaluationYearAndEvaluationQuarterAndEmployee_Department_DepartmentName(
         Integer evaluationYear,
         Integer evaluationQuarter,
-        String teamName
+        String departmentName
     );
 }

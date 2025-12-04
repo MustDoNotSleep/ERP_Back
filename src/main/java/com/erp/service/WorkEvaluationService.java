@@ -24,14 +24,14 @@ public class WorkEvaluationService {
     public List<WorkEvaluationDto.Response> getEvaluations(
             Integer evaluationYear,
             String quarterLabel,
-            String teamName 
+            String departmentName 
     ) {
         Integer quarter = parseQuarterLabel(quarterLabel);
-        String normalizedTeamName = normalizeTeamName(teamName);
+        String normalizedDepartmentName = normalizeDepartmentName(departmentName);
 
-        List<WorkEvaluation> evaluations = (normalizedTeamName != null)
-            ? fetchByTeam(normalizedTeamName, evaluationYear, quarter)
-            : fetchWithoutTeam(evaluationYear, quarter);
+        List<WorkEvaluation> evaluations = (normalizedDepartmentName != null)
+            ? fetchByDepartment(normalizedDepartmentName, evaluationYear, quarter)
+            : fetchWithoutDepartment(evaluationYear, quarter);
 
         return evaluations.stream()
             .map(WorkEvaluationDto.Response::from)
@@ -55,7 +55,7 @@ public class WorkEvaluationService {
         }
 
         boolean isMyDepartment = requester.getDepartment().getId().equals(departmentId);
-        boolean isHrTeam = "인사팀".equals(requester.getDepartment().getDepartmentName()); // 혹은 getTeamName()
+        boolean isHrTeam = "인사팀".equals(requester.getDepartment().getDepartmentName());
 
         if (!isMyDepartment && !isHrTeam) {
             throw new IllegalArgumentException("해당 부서의 평가 내역을 조회할 권한이 없습니다.");
@@ -178,33 +178,29 @@ public class WorkEvaluationService {
         }
     }
 
-    private String normalizeTeamName(String teamName) {
-        if (teamName == null || teamName.isBlank() || "선택".equals(teamName)) {
+    private String normalizeDepartmentName(String departmentName) {
+        if (departmentName == null || departmentName.isBlank() || "선택".equals(departmentName)) {
             return null;
         }
-        return teamName;
+        return departmentName;
     }
 
-    private List<WorkEvaluation> fetchWithoutTeam(Integer year, Integer quarter) {
+    private List<WorkEvaluation> fetchWithoutDepartment(Integer year, Integer quarter) {
         if (year != null && quarter != null) return workEvaluationRepository.findByEvaluationYearAndEvaluationQuarter(year, quarter);
         if (year != null) return workEvaluationRepository.findByEvaluationYear(year);
         return workEvaluationRepository.findAll();
     }
 
-    // ✅ [여기가 수정되었습니다] DepartmentName -> TeamName 으로 변경!
-    private List<WorkEvaluation> fetchByTeam(String teamName, Integer year, Integer quarter) {
+    private List<WorkEvaluation> fetchByDepartment(String departmentName, Integer year, Integer quarter) {
         if (year != null && quarter != null) {
-            // DepartmentName -> TeamName
             return workEvaluationRepository
-                .findByEmployee_Department_TeamNameAndEvaluationYearAndEvaluationQuarter(
-                    teamName, year, quarter);
+                .findByEmployee_Department_DepartmentNameAndEvaluationYearAndEvaluationQuarter(
+                    departmentName, year, quarter);
         }
         if (year != null) {
-            // DepartmentName -> TeamName
             return workEvaluationRepository
-                .findByEmployee_Department_TeamNameAndEvaluationYear(teamName, year);
+                .findByEmployee_Department_DepartmentNameAndEvaluationYear(departmentName, year);
         }
-        // DepartmentName -> TeamName
-        return workEvaluationRepository.findByEmployee_Department_TeamName(teamName);
+        return workEvaluationRepository.findByEmployee_Department_DepartmentName(departmentName);
     }
 }
