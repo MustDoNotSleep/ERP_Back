@@ -58,7 +58,7 @@ public class AiService {
                     .workAttitude(e.getAttitudeScore() != null ? e.getAttitudeScore() : 0)
                     .goalAchievement(e.getAchievementScore() != null ? e.getAchievementScore() : 0)
                     .collaboration(e.getCollaborationScore() != null ? e.getCollaborationScore() : 0)
-                    .comment(e.getTotalGrade() != null ? e.getTotalGrade() : "데이터 없음")
+                    .comment(e.getContributionGrade() != null ? e.getContributionGrade() : "데이터 없음")
                     .build())
                 .collect(Collectors.toList());
 

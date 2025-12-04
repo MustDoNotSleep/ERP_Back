@@ -16,7 +16,7 @@ public class WorkEvaluationDto {
         private Integer year;
         private String quarter;
         
-        private String teamName;     // 부서명
+        private String departmentName;     // 부서명
         
         // [수정 완료] 화면 표시용이므로 '직급명'이 들어가는 게 맞습니다.
         private String positionName; 
@@ -25,7 +25,7 @@ public class WorkEvaluationDto {
         private Integer goalAchievement;
         private Integer collaboration;
         private String contribution;
-        private String comment;
+        private String evaluatorInfo; // 평가자 정보
 
         public static Response from(WorkEvaluation evaluation) {
             var emp = evaluation.getEmployee();
@@ -43,7 +43,7 @@ public class WorkEvaluationDto {
                 .name(emp != null ? emp.getName() : null)
                 .year(evaluation.getEvaluationYear())
                 .quarter(evaluation.getEvaluationQuarter() + "분기")
-                .teamName(dept != null ? dept.getTeamName() : null)
+                .departmentName(dept != null ? dept.getDepartmentName() : null)
                 
                 // [매핑] Position 엔티티의 getPositionName() (예: "부장", "대리") 사용
                 .positionName(pos != null ? pos.getPositionName() : null) 
@@ -52,7 +52,7 @@ public class WorkEvaluationDto {
                 .goalAchievement(evaluation.getAchievementScore())
                 .collaboration(evaluation.getCollaborationScore())
                 .contribution(evaluation.getContributionGrade())
-                .comment(evaluatorInfo) 
+                .evaluatorInfo(evaluatorInfo) 
                 .build();
         }
     }
@@ -66,8 +66,5 @@ public class WorkEvaluationDto {
         private Integer goalAchievement;
         private Integer collaboration;
         private String contribution;
-        private String comment;
-        private String status;
-        private Long evaluatorId;
     }
 }

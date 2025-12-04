@@ -22,32 +22,26 @@ public class WorkEvaluation {
     private Employee employee;
 
     @Column(name = "evaluation_year", nullable = false)
-    private Integer evaluationYear;
+    private Integer evaluationYear; // 연도
 
     @Column(name = "evaluation_quarter", nullable = false)
-    private Integer evaluationQuarter;
+    private Integer evaluationQuarter; // 분기
 
     @Column(name = "attitude_score")
-    private Integer attitudeScore;
+    private Integer attitudeScore; // 태도 점수
 
     @Column(name = "achievement_score")
-    private Integer achievementScore;
+    private Integer achievementScore; // 목표 달성 점수
 
     @Column(name = "collaboration_score")
-    private Integer collaborationScore;
+    private Integer collaborationScore; // 협업 점수
 
     @Column(name = "contribution_grade", length = 2)
-    private String contributionGrade;
-
-    @Column(name = "total_grade", length = 2)
-    private String totalGrade;
-
-    @Column(name = "status", nullable = false, length = 20)
-    private String status;
+    private String contributionGrade; // 기여도 등급
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "evaluatorId")
-    private Employee evaluator;
+    private Employee evaluator; // 평가자
 
     @Column(name = "createdAt", updatable = false)
     private LocalDateTime createdAt;

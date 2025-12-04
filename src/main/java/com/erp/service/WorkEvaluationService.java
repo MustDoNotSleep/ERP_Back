@@ -5,6 +5,7 @@ import com.erp.entity.Employee;
 import com.erp.entity.WorkEvaluation;
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.WorkEvaluationRepository;
+import com.erp.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,11 +111,10 @@ public class WorkEvaluationService {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(() -> new IllegalArgumentException("직원 정보를 찾을 수 없습니다."));
 
-        Employee evaluator = null;
-        if (request.getEvaluatorId() != null) {
-            evaluator = employeeRepository.findById(request.getEvaluatorId())
-                .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
-        }
+        // 현재 로그인한 사용자를 평가자로 자동 설정
+        Long evaluatorId = SecurityUtil.getCurrentEmployeeId();
+        Employee evaluator = employeeRepository.findById(evaluatorId)
+            .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
 
         WorkEvaluation evaluation = WorkEvaluation.builder()
             .employee(employee)
@@ -124,8 +124,6 @@ public class WorkEvaluationService {
             .achievementScore(request.getGoalAchievement())
             .collaborationScore(request.getCollaboration())
             .contributionGrade(request.getContribution())
-            .totalGrade(request.getComment())
-            .status(request.getStatus() != null ? request.getStatus() : "DRAFT")
             .evaluator(evaluator)
             .build();
 
@@ -142,17 +140,10 @@ public class WorkEvaluationService {
         WorkEvaluation evaluation = workEvaluationRepository.findById(evaluationId)
             .orElseThrow(() -> new IllegalArgumentException("평가 정보를 찾을 수 없습니다."));
 
-        if ("SUBMITTED".equals(evaluation.getStatus())) {
-            throw new IllegalStateException("제출 완료된 평가는 수정할 수 없습니다.");
-        }
-
-        Employee evaluator = null;
-        if (request.getEvaluatorId() != null) {
-            evaluator = employeeRepository.findById(request.getEvaluatorId())
-                .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
-        } else {
-            evaluator = evaluation.getEvaluator();
-        }
+        // 현재 로그인한 사용자를 평가자로 자동 설정
+        Long evaluatorId = SecurityUtil.getCurrentEmployeeId();
+        Employee evaluator = employeeRepository.findById(evaluatorId)
+            .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
         
         Integer targetQuarter = (request.getQuarter() != null) 
             ? parseQuarterLabel(request.getQuarter()) 
@@ -167,8 +158,6 @@ public class WorkEvaluationService {
             .achievementScore(request.getGoalAchievement() != null ? request.getGoalAchievement() : evaluation.getAchievementScore())
             .collaborationScore(request.getCollaboration() != null ? request.getCollaboration() : evaluation.getCollaborationScore())
             .contributionGrade(request.getContribution() != null ? request.getContribution() : evaluation.getContributionGrade())
-            .totalGrade(request.getComment() != null ? request.getComment() : evaluation.getTotalGrade())
-            .status(request.getStatus() != null ? request.getStatus() : evaluation.getStatus())
             .evaluator(evaluator)
             .createdAt(evaluation.getCreatedAt())
             .build();
