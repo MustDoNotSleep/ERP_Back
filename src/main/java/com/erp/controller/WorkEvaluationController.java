@@ -26,9 +26,9 @@ public class WorkEvaluationController {
     public ResponseEntity<List<WorkEvaluationDto.Response>> getEvaluations(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) String quarter,
-            @RequestParam(required = false) String teamName
+            @RequestParam(required = false) String departmentName
     ) {
-        List<WorkEvaluationDto.Response> result = workEvaluationService.getEvaluations(year, quarter, teamName);
+        List<WorkEvaluationDto.Response> result = workEvaluationService.getEvaluations(year, quarter, departmentName);
         return ResponseEntity.ok(result);
     }
 

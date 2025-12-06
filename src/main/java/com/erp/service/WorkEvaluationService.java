@@ -5,6 +5,7 @@ import com.erp.entity.Employee;
 import com.erp.entity.WorkEvaluation;
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.WorkEvaluationRepository;
+import com.erp.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,14 +24,14 @@ public class WorkEvaluationService {
     public List<WorkEvaluationDto.Response> getEvaluations(
             Integer evaluationYear,
             String quarterLabel,
-            String teamName 
+            String departmentName 
     ) {
         Integer quarter = parseQuarterLabel(quarterLabel);
-        String normalizedTeamName = normalizeTeamName(teamName);
+        String normalizedDepartmentName = normalizeDepartmentName(departmentName);
 
-        List<WorkEvaluation> evaluations = (normalizedTeamName != null)
-            ? fetchByTeam(normalizedTeamName, evaluationYear, quarter)
-            : fetchWithoutTeam(evaluationYear, quarter);
+        List<WorkEvaluation> evaluations = (normalizedDepartmentName != null)
+            ? fetchByDepartment(normalizedDepartmentName, evaluationYear, quarter)
+            : fetchWithoutDepartment(evaluationYear, quarter);
 
         return evaluations.stream()
             .map(WorkEvaluationDto.Response::from)
@@ -54,7 +55,7 @@ public class WorkEvaluationService {
         }
 
         boolean isMyDepartment = requester.getDepartment().getId().equals(departmentId);
-        boolean isHrTeam = "인사팀".equals(requester.getDepartment().getDepartmentName()); // 혹은 getTeamName()
+        boolean isHrTeam = "인사팀".equals(requester.getDepartment().getDepartmentName());
 
         if (!isMyDepartment && !isHrTeam) {
             throw new IllegalArgumentException("해당 부서의 평가 내역을 조회할 권한이 없습니다.");
@@ -110,11 +111,10 @@ public class WorkEvaluationService {
         Employee employee = employeeRepository.findById(employeeId)
             .orElseThrow(() -> new IllegalArgumentException("직원 정보를 찾을 수 없습니다."));
 
-        Employee evaluator = null;
-        if (request.getEvaluatorId() != null) {
-            evaluator = employeeRepository.findById(request.getEvaluatorId())
-                .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
-        }
+        // 현재 로그인한 사용자를 평가자로 자동 설정
+        Long evaluatorId = SecurityUtil.getCurrentEmployeeId();
+        Employee evaluator = employeeRepository.findById(evaluatorId)
+            .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
 
         WorkEvaluation evaluation = WorkEvaluation.builder()
             .employee(employee)
@@ -124,8 +124,6 @@ public class WorkEvaluationService {
             .achievementScore(request.getGoalAchievement())
             .collaborationScore(request.getCollaboration())
             .contributionGrade(request.getContribution())
-            .totalGrade(request.getComment())
-            .status(request.getStatus() != null ? request.getStatus() : "DRAFT")
             .evaluator(evaluator)
             .build();
 
@@ -142,17 +140,10 @@ public class WorkEvaluationService {
         WorkEvaluation evaluation = workEvaluationRepository.findById(evaluationId)
             .orElseThrow(() -> new IllegalArgumentException("평가 정보를 찾을 수 없습니다."));
 
-        if ("SUBMITTED".equals(evaluation.getStatus())) {
-            throw new IllegalStateException("제출 완료된 평가는 수정할 수 없습니다.");
-        }
-
-        Employee evaluator = null;
-        if (request.getEvaluatorId() != null) {
-            evaluator = employeeRepository.findById(request.getEvaluatorId())
-                .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
-        } else {
-            evaluator = evaluation.getEvaluator();
-        }
+        // 현재 로그인한 사용자를 평가자로 자동 설정
+        Long evaluatorId = SecurityUtil.getCurrentEmployeeId();
+        Employee evaluator = employeeRepository.findById(evaluatorId)
+            .orElseThrow(() -> new IllegalArgumentException("평가자 정보를 찾을 수 없습니다."));
         
         Integer targetQuarter = (request.getQuarter() != null) 
             ? parseQuarterLabel(request.getQuarter()) 
@@ -167,8 +158,6 @@ public class WorkEvaluationService {
             .achievementScore(request.getGoalAchievement() != null ? request.getGoalAchievement() : evaluation.getAchievementScore())
             .collaborationScore(request.getCollaboration() != null ? request.getCollaboration() : evaluation.getCollaborationScore())
             .contributionGrade(request.getContribution() != null ? request.getContribution() : evaluation.getContributionGrade())
-            .totalGrade(request.getComment() != null ? request.getComment() : evaluation.getTotalGrade())
-            .status(request.getStatus() != null ? request.getStatus() : evaluation.getStatus())
             .evaluator(evaluator)
             .createdAt(evaluation.getCreatedAt())
             .build();
@@ -189,33 +178,29 @@ public class WorkEvaluationService {
         }
     }
 
-    private String normalizeTeamName(String teamName) {
-        if (teamName == null || teamName.isBlank() || "선택".equals(teamName)) {
+    private String normalizeDepartmentName(String departmentName) {
+        if (departmentName == null || departmentName.isBlank() || "선택".equals(departmentName)) {
             return null;
         }
-        return teamName;
+        return departmentName;
     }
 
-    private List<WorkEvaluation> fetchWithoutTeam(Integer year, Integer quarter) {
+    private List<WorkEvaluation> fetchWithoutDepartment(Integer year, Integer quarter) {
         if (year != null && quarter != null) return workEvaluationRepository.findByEvaluationYearAndEvaluationQuarter(year, quarter);
         if (year != null) return workEvaluationRepository.findByEvaluationYear(year);
         return workEvaluationRepository.findAll();
     }
 
-    // ✅ [여기가 수정되었습니다] DepartmentName -> TeamName 으로 변경!
-    private List<WorkEvaluation> fetchByTeam(String teamName, Integer year, Integer quarter) {
+    private List<WorkEvaluation> fetchByDepartment(String departmentName, Integer year, Integer quarter) {
         if (year != null && quarter != null) {
-            // DepartmentName -> TeamName
             return workEvaluationRepository
-                .findByEmployee_Department_TeamNameAndEvaluationYearAndEvaluationQuarter(
-                    teamName, year, quarter);
+                .findByEmployee_Department_DepartmentNameAndEvaluationYearAndEvaluationQuarter(
+                    departmentName, year, quarter);
         }
         if (year != null) {
-            // DepartmentName -> TeamName
             return workEvaluationRepository
-                .findByEmployee_Department_TeamNameAndEvaluationYear(teamName, year);
+                .findByEmployee_Department_DepartmentNameAndEvaluationYear(departmentName, year);
         }
-        // DepartmentName -> TeamName
-        return workEvaluationRepository.findByEmployee_Department_TeamName(teamName);
+        return workEvaluationRepository.findByEmployee_Department_DepartmentName(departmentName);
     }
 }
