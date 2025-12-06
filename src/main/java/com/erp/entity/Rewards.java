@@ -1,10 +1,13 @@
 package com.erp.entity;
 
+import com.erp.entity.converter.RewardValueConverter;
 import com.erp.entity.enums.RewardItem;
-import com.erp.entity.enums.RewardStatus;
+import com.erp.entity.enums.RewardStatus; // ✅ 임포트 확인!
 import com.erp.entity.enums.RewardType;
+import com.erp.entity.enums.RewardValue;  // ✅ 임포트 확인!
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -14,33 +17,35 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Rewards extends BaseEntity { // BaseEntity에도 createdAt 매핑 확인 필요!
+public class Rewards extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "rewardId") // DB 컬럼명 명시
+    @Column(name = "rewardId")
     private Long rewardId;
 
     // --- 1. 대상자 정보 ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employeeId", nullable = false) // FK 컬럼명 명시
+    @JoinColumn(name = "employeeId", nullable = false)
     private Employee employee;
 
-    // --- 2. 포상 상세 정보 (여기가 핵심!) ---
+    // --- 2. 포상 상세 정보 ---
     
-    @Column(name = "rewardDate", nullable = false) // ⭐ DB의 'rewardDate'와 매핑
+    @Column(name = "rewardDate", nullable = false)
     private LocalDate rewardDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "rewardType", nullable = false) // ⭐ DB의 'rewardType'와 매핑
+    @Column(name = "rewardType", nullable = false)
     private RewardType rewardType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "rewardItem", nullable = false) // ⭐ DB의 'rewardItem'와 매핑
+    @Column(name = "rewardItem", nullable = false)
     private RewardItem rewardItem;
 
-    @Column(name = "rewardValue") // ⭐ DB의 'rewardValue'와 매핑
-    private String rewardValue;
+    // ✅ [수정] Enum 타입이므로 @Enumerated(EnumType.STRING) 필수!
+    @Convert(converter = RewardValueConverter.class)
+    @Column(name = "rewardValue")
+    private RewardValue rewardValue;
 
     @Column(name = "amount")
     private Double amount;
@@ -57,13 +62,13 @@ public class Rewards extends BaseEntity { // BaseEntity에도 createdAt 매핑 �
 
     // --- 4. 승인자 정보 ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "approverId") // FK 컬럼명 명시
+    @JoinColumn(name = "approverId")
     private Employee approver;
 
-    @Column(name = "approvedAt") // ⭐ DB의 'approvedAt' (카멜케이스) 매핑
+    @Column(name = "approvedAt")
     private LocalDateTime approvedAt;
 
-    // (비즈니스 로직 메서드는 그대로 두시면 됩니다)
+    // --- 비즈니스 로직 ---
     public void approve(Employee approver) {
         this.status = RewardStatus.APPROVED;
         this.approver = approver;

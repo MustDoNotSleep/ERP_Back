@@ -1,7 +1,7 @@
 package com.erp.controller;
 
 import com.erp.dto.RewardDto;
-import com.erp.entity.enums.RewardStatus;
+import com.erp.entity.enums.RewardStatus; // ⭐ [수정] 결재 상태 Enum 임포트
 import com.erp.service.RewardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,33 +12,34 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/hr/rewards") // 기본 URL: /hr/rewards
+@RequestMapping("/hr/rewards")
 @RequiredArgsConstructor
 public class RewardController {
 
     private final RewardService rewardService;
 
     // =================================================================================
-    // 🔍 [GET] 포상 목록 조회 (검색 필터 적용)
+    // 🔍 [GET] 포상 목록 조회
     // =================================================================================
-    // 요청 예시: GET /hr/rewards?startDate=2025-01-01&empName=김철수
     @GetMapping
     public ResponseEntity<List<RewardDto>> getRewards(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String empName,
             @RequestParam(required = false) String deptName,
+            @RequestParam(required = false) String positionName,
+            
+            // 🚨 [수정 중요] RewardValue -> RewardStatus 로 변경하고, 변수명도 status로 통일!
             @RequestParam(required = false) RewardStatus status
     ) {
-        // 서비스에서 검색 결과를 DTO 리스트로 받아옴
-        List<RewardDto> result = rewardService.searchRewards(startDate, endDate, empName, deptName, status);
+        // 이제 파라미터 이름(status)과 서비스 파라미터가 일치합니다.
+        List<RewardDto> result = rewardService.searchRewards(startDate, endDate, empName, positionName, deptName, status);
         return ResponseEntity.ok(result);
     }
 
     // =================================================================================
-    // 💾 [POST] 포상 등록 (신청)
+    // 💾 [POST] 포상 등록
     // =================================================================================
-    // 요청 예시: POST /hr/rewards (Body: { "employeeId": 1, "rewardType": "CONTRIBUTION" ... })
     @PostMapping
     public ResponseEntity<String> createReward(@RequestBody RewardDto dto) {
         try {
@@ -55,7 +56,6 @@ public class RewardController {
     // =================================================================================
     // ✅ [PUT] 포상 승인 처리
     // =================================================================================
-    // 요청 예시: PUT /hr/rewards/10/approve
     @PutMapping("/{rewardId}/approve")
     public ResponseEntity<String> approveReward(@PathVariable Long rewardId) {
         try {
@@ -69,7 +69,6 @@ public class RewardController {
     // =================================================================================
     // ❌ [PUT] 포상 반려 처리
     // =================================================================================
-    // 요청 예시: PUT /hr/rewards/10/reject
     @PutMapping("/{rewardId}/reject")
     public ResponseEntity<String> rejectReward(@PathVariable Long rewardId) {
         try {
@@ -83,7 +82,6 @@ public class RewardController {
     // =================================================================================
     // 🗑️ [DELETE] 포상 내역 삭제
     // =================================================================================
-    // 요청 예시: DELETE /hr/rewards/10
     @DeleteMapping("/{rewardId}")
     public ResponseEntity<String> deleteReward(@PathVariable Long rewardId) {
         try {

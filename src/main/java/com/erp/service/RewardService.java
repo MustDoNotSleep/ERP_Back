@@ -3,10 +3,10 @@ package com.erp.service;
 import com.erp.dto.RewardDto;
 import com.erp.entity.Employee;
 import com.erp.entity.Rewards;
-import com.erp.entity.enums.RewardStatus;
+import com.erp.entity.enums.RewardStatus; // ⭐ [필수] 결재 상태 Enum 임포트
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.RewardRepository;
-import com.erp.util.SecurityUtil; // ✅ [수정] SecurityUtil 임포트 필수!
+import com.erp.util.SecurityUtil; 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,17 +45,19 @@ public class RewardService {
     public List<RewardDto> searchRewards(
             LocalDate startDate,
             LocalDate endDate,
-            String empName,
+            String employeeName,
+            String positionName,
             String deptName,
-            RewardStatus status
+            RewardStatus status // 🚨 [수정] RewardValue -> RewardStatus 로 변경!
     ) {
-        return rewardRepository.searchRewards(startDate, endDate, empName, deptName, status).stream()
+        // Repository에도 파라미터 타입이 RewardStatus로 되어 있어야 함
+        return rewardRepository.searchRewards(startDate, endDate, employeeName, positionName, deptName, status).stream()
                 .map(RewardDto::from)
                 .collect(Collectors.toList());
     }
 
     // =================================================================================
-    // ✅ [PUT] 포상 승인 처리 (수정됨)
+    // ✅ [PUT] 포상 승인 처리
     // =================================================================================
     @Transactional
     public void approveReward(Long rewardId) {
@@ -63,19 +65,19 @@ public class RewardService {
         Rewards reward = rewardRepository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 포상 내역입니다. ID=" + rewardId));
 
-        // ✅ [수정] SecurityUtil을 사용하여 현재 로그인한 사람(승인자)의 ID 가져오기
+        // 2. 현재 로그인한 사람(승인자) ID 가져오기
         Long currentApproverId = SecurityUtil.getCurrentEmployeeId();
 
-        // ✅ [수정] 승인자 정보(Employee 엔티티)를 DB에서 조회
+        // 3. 승인자 정보 조회
         Employee approver = employeeRepository.findById(currentApproverId)
                 .orElseThrow(() -> new IllegalArgumentException("승인자(로그인 사용자) 정보를 찾을 수 없습니다. ID=" + currentApproverId));
 
-        // 3. 승인 처리 (Entity 내부 메서드 호출 -> Dirty Checking으로 자동 저장)
+        // 4. 승인 처리
         reward.approve(approver);
     }
 
     // =================================================================================
-    // ✅ [PUT] 포상 반려 처리 (수정됨)
+    // ✅ [PUT] 포상 반려 처리
     // =================================================================================
     @Transactional
     public void rejectReward(Long rewardId) {
@@ -83,14 +85,14 @@ public class RewardService {
         Rewards reward = rewardRepository.findById(rewardId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 포상 내역입니다. ID=" + rewardId));
 
-        // ✅ [수정] SecurityUtil을 사용하여 현재 로그인한 사람(반려자)의 ID 가져오기
+        // 2. 현재 로그인한 사람(반려자) ID 가져오기
         Long currentRejectorId = SecurityUtil.getCurrentEmployeeId();
 
-        // ✅ [수정] 반려자 정보(Employee 엔티티)를 DB에서 조회
+        // 3. 반려자 정보 조회
         Employee rejector = employeeRepository.findById(currentRejectorId)
                 .orElseThrow(() -> new IllegalArgumentException("반려자(로그인 사용자) 정보를 찾을 수 없습니다. ID=" + currentRejectorId));
 
-        // 3. 반려 처리
+        // 4. 반려 처리
         reward.reject(rejector);
     }
 

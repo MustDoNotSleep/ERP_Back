@@ -22,7 +22,7 @@ public enum RewardType {
 
     @JsonCreator
     public static RewardType from(String value) {
-        if (value == null || value.trim().isEmpty()) {
+        if (value == null || value.trim().isEmpty() || value.equals("선택")) {
             return null;
         }
         try {

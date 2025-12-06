@@ -26,7 +26,7 @@ public enum RewardItem {
     // "MONEY"라고 보내도 되고, "상금"이라고 보내도 알아서 찾아줍니다.
     @JsonCreator
     public static RewardItem from(String value) {
-        if (value == null || value.trim().isEmpty()) {
+        if (value == null || value.trim().isEmpty() || value.equals("선택")) {
             return null;
         }
         // 1. 영어 상수명으로 먼저 시도 (예: "MONEY")

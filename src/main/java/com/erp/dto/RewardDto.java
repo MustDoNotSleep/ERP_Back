@@ -3,9 +3,10 @@ package com.erp.dto;
 import com.erp.entity.Employee;
 import com.erp.entity.Rewards;
 import com.erp.entity.enums.RewardItem;
-import com.erp.entity.enums.RewardStatus;
+import com.erp.entity.enums.RewardStatus; // ⭐ 결재 상태 Enum
 import com.erp.entity.enums.RewardType;
-import com.fasterxml.jackson.annotation.JsonFormat; // ⭐ 날짜 포맷팅용 라이브러리 추가
+import com.erp.entity.enums.RewardValue;  // ⭐ 포상 사유 Enum
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,14 +26,19 @@ public class RewardDto {
     // =======================================================
     private Long rewardId;          // PK
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") // ⭐ 프론트로 날짜 예쁘게 보냄
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate rewardDate;   // 요청일/추천일
 
     private RewardType rewardType;  // 포상 종류 (ENUM)
     private RewardItem rewardItem;  // 포상 형태 (ENUM)
-    private String rewardValue;     // 포상 이유 (ENUM or String)
+    
+    // ⭐ [수정] String -> RewardValue (Enum)으로 변경
+    private RewardValue rewardValue; // 포상 사유 (TEAM_CONTRIBUTION 등)
+    
     private Double amount;          // 포상 금액
     private String reason;          // 사유 (상세 내용)
+    
+    // ⭐ [수정] 결재 상태는 RewardStatus 사용
     private RewardStatus status;    // 상태 (PENDING, APPROVED...)
 
     // =======================================================
@@ -42,15 +48,15 @@ public class RewardDto {
     private Long approverId;        // 승인자 사번
 
     // =======================================================
-    // 3. 출력용 필드 (Response - 화면에 보여줄 이름들)
+    // 3. 출력용 필드 (Response)
     // =======================================================
     private String employeeName;    // 받는 사람 이름
     private String departmentName;  // 받는 사람 부서
     private String positionName;    // 받는 사람 직급
     
-    private String approverName;    // ⭐ 승인자 이름 (화면에 표시될 핵심!)
+    private String approverName;    // 승인자 이름
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss") // ⭐ 시간까지 예쁘게
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime approvedAt; // 승인 일시
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -65,25 +71,23 @@ public class RewardDto {
                 .rewardDate(entity.getRewardDate())
                 .rewardType(entity.getRewardType())
                 .rewardItem(entity.getRewardItem())
-                .rewardValue(entity.getRewardValue())
+                .rewardValue(entity.getRewardValue()) // Entity도 RewardValue Enum이어야 함
                 .amount(entity.getAmount())
                 .reason(entity.getReason())
-                .status(entity.getStatus())
                 
-                // --- 1. 받는 사람 정보 (Mandatory) ---
-                .employeeId(entity.getEmployee().getId()) // 사번
-                .employeeName(entity.getEmployee().getName()) // 이름
-                // 부서/직급이 없을 경우를 대비한 안전 장치
+                // ⭐ [수정] getRewardStatus() -> getStatus() 로 변경 (Lombok 기본 Getter)
+                .status(entity.getStatus()) 
+                
+                // --- 1. 받는 사람 정보 ---
+                .employeeId(entity.getEmployee().getId())
+                .employeeName(entity.getEmployee().getName())
                 .departmentName(entity.getEmployee().getDepartment() != null 
                         ? entity.getEmployee().getDepartment().getTeamName() : "-")
                 .positionName(entity.getEmployee().getPosition() != null 
                         ? entity.getEmployee().getPosition().getPositionName() : "-")
 
-                // --- 2. 승인자 정보 (Optional - 여기가 제일 중요!) ---
-                // 승인자(Approver)가 아직 없는 상태(대기중)일 때 에러 안 나게 처리
+                // --- 2. 승인자 정보 ---
                 .approverId(entity.getApprover() != null ? entity.getApprover().getId() : null)
-                
-                // ⭐ 승인자가 있으면 이름 넣고, 없으면 "-" 또는 "미승인" 처리
                 .approverName(entity.getApprover() != null ? entity.getApprover().getName() : "-") 
                 
                 .approvedAt(entity.getApprovedAt())
@@ -100,10 +104,10 @@ public class RewardDto {
                 .rewardDate(this.rewardDate)
                 .rewardType(this.rewardType)
                 .rewardItem(this.rewardItem)
-                .rewardValue(this.rewardValue)
+                .rewardValue(this.rewardValue) // Enum 그대로 저장
                 .amount(this.amount)
                 .reason(this.reason)
-                .status(RewardStatus.PENDING) // 처음 생성 시엔 무조건 대기
+                .status(RewardStatus.PENDING) // ⭐ 초기값은 Status Enum 사용
                 .build();
     }
 }

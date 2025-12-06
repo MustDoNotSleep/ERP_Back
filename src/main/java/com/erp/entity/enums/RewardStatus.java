@@ -2,7 +2,9 @@ package com.erp.entity.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
+@Getter
 public enum RewardStatus {
     PENDING("대기"),
     APPROVED("승인"),
@@ -10,7 +12,7 @@ public enum RewardStatus {
 
     private final String description;
 
-    RewardStatus(String description) {
+    RewardStatus(String description) { 
         this.description = description;
     }
 
