@@ -4,6 +4,7 @@ import com.erp.dto.RewardDto;
 import com.erp.entity.Employee;
 import com.erp.entity.Rewards;
 import com.erp.entity.enums.RewardStatus; // ⭐ [필수] 결재 상태 Enum 임포트
+import com.erp.entity.enums.RewardType;   // ⭐ [추가] 포상 종류 Enum 임포트
 import com.erp.repository.EmployeeRepository;
 import com.erp.repository.RewardRepository;
 import com.erp.util.SecurityUtil; 
@@ -46,12 +47,15 @@ public class RewardService {
             LocalDate startDate,
             LocalDate endDate,
             String employeeName,
-            String positionName,
             String deptName,
-            RewardStatus status // 🚨 [수정] RewardValue -> RewardStatus 로 변경!
+            String positionName,
+            RewardType rewardType,   // ⭐ 포상 종류 필터
+            RewardStatus status      // 결재 상태 필터
     ) {
-        // Repository에도 파라미터 타입이 RewardStatus로 되어 있어야 함
-        return rewardRepository.searchRewards(startDate, endDate, employeeName, positionName, deptName, status).stream()
+        // Repository 파라미터 순서와 일치
+        return rewardRepository.searchRewards(
+            startDate, endDate, employeeName, deptName, positionName, rewardType, status
+        ).stream()
                 .map(RewardDto::from)
                 .collect(Collectors.toList());
     }

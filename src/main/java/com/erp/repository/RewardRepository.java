@@ -2,6 +2,7 @@ package com.erp.repository;
 
 import com.erp.entity.Rewards;
 import com.erp.entity.enums.RewardStatus; // ⭐ [필수] 결재 상태 Enum 임포트
+import com.erp.entity.enums.RewardType;   // ⭐ [추가] 포상 종류 Enum 임포트
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,7 +24,8 @@ public interface RewardRepository extends JpaRepository<Rewards, Long> {
             "AND (:employeeName IS NULL OR e.name LIKE CONCAT ('%', :employeeName, '%')) " +
             "AND (:deptName IS NULL OR d.teamName LIKE CONCAT ('%', :deptName, '%')) " +
             "AND (:positionName IS NULL OR p.positionName LIKE CONCAT ('%', :positionName, '%')) " +
-            "AND (:status IS NULL OR r.status = :status) " + // 여기서 r.status는 RewardStatus 타입임
+            "AND (:rewardType IS NULL OR r.rewardType = :rewardType) " + // ⭐ 포상 종류 필터 추가
+            "AND (:status IS NULL OR r.status = :status) " + // 결재 상태 필터
             "ORDER BY r.rewardDate DESC, r.createdAt DESC")
     List<Rewards> searchRewards(
             @Param("startDate") java.time.LocalDate startDate,
@@ -31,6 +33,7 @@ public interface RewardRepository extends JpaRepository<Rewards, Long> {
             @Param("employeeName") String employeeName,
             @Param("deptName") String deptName,
             @Param("positionName") String positionName,
+            @Param("rewardType") RewardType rewardType,
             @Param("status") RewardStatus status 
     );
 }

@@ -1,15 +1,19 @@
 package com.erp.controller;
 
 import com.erp.dto.RewardDto;
+import com.erp.entity.enums.RewardItem;
 import com.erp.entity.enums.RewardStatus; // ⭐ [수정] 결재 상태 Enum 임포트
+import com.erp.entity.enums.RewardType;
+import com.erp.entity.enums.RewardValue;
 import com.erp.service.RewardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/hr/rewards")
@@ -25,15 +29,30 @@ public class RewardController {
     public ResponseEntity<List<RewardDto>> getRewards(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) String empName,
+            @RequestParam(required = false) String employeeName,  // ⭐ 프론트와 일치시키기 위해 employeeName 사용
             @RequestParam(required = false) String deptName,
             @RequestParam(required = false) String positionName,
-            
-            // 🚨 [수정 중요] RewardValue -> RewardStatus 로 변경하고, 변수명도 status로 통일!
-            @RequestParam(required = false) RewardStatus status
+            @RequestParam(required = false) RewardType rewardType,  // ⭐ 포상 종류 필터 추가
+            @RequestParam(required = false) RewardStatus status     // 결재 상태 필터
     ) {
-        // 이제 파라미터 이름(status)과 서비스 파라미터가 일치합니다.
-        List<RewardDto> result = rewardService.searchRewards(startDate, endDate, empName, positionName, deptName, status);
+        System.out.println("==========================================");
+        System.out.println(">>> 포상 조회 요청 도착!");
+        System.out.println(">>> startDate: " + startDate);
+        System.out.println(">>> endDate: " + endDate);
+        System.out.println(">>> employeeName: " + employeeName);
+        System.out.println(">>> deptName: " + deptName);
+        System.out.println(">>> positionName: " + positionName);
+        System.out.println(">>> rewardType: " + rewardType);
+        System.out.println(">>> status: " + status);
+        System.out.println("==========================================");
+                
+        List<RewardDto> result = rewardService.searchRewards(
+            startDate, endDate, employeeName, deptName, positionName, rewardType, status
+        );
+        
+        System.out.println(">>> 조회 결과 개수: " + result.size());
+        System.out.println("==========================================");
+        
         return ResponseEntity.ok(result);
     }
 
@@ -91,4 +110,45 @@ public class RewardController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    // 이넘 속성 호출용
+    @GetMapping("/enums")
+    public ResponseEntity<Map<String, List<Map<String, String>>>> getRewardEnums() {
+    Map<String, List<Map<String, String>>> enums = new HashMap<>();
+    
+    // RewardType Enum
+    List<Map<String, String>> rewardTypes = Arrays.stream(RewardType.values())
+        .map(type -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("value", type.name());
+            map.put("label", type.getDescription());  // ⭐ getDisplayName() -> getDescription()
+            return map;
+        })
+        .collect(Collectors.toList());
+    enums.put("rewardTypes", rewardTypes);
+    
+    // RewardItem Enum
+    List<Map<String, String>> rewardItems = Arrays.stream(RewardItem.values())
+        .map(item -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("value", item.name());
+            map.put("label", item.getDescription());  // ⭐ getDisplayName() -> getDescription()
+            return map;
+        })
+        .collect(Collectors.toList());
+    enums.put("rewardItems", rewardItems);
+    
+    // RewardValue Enum
+    List<Map<String, String>> rewardValues = Arrays.stream(RewardValue.values())
+        .map(value -> {
+            Map<String, String> map = new HashMap<>();
+            map.put("value", value.name());
+            map.put("label", value.getDescription());  // ⭐ getDisplayName() -> getDescription()
+            return map;
+        })
+        .collect(Collectors.toList());
+    enums.put("rewardValues", rewardValues);
+    
+    return ResponseEntity.ok(enums);
+}
 }
